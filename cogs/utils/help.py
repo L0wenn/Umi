@@ -8,6 +8,11 @@ class MyOwnHelp(commands.MinimalHelpCommand):
         return "Down below listed all commands I know.\n" \
             "If you need further help on something, please, join our [Support Server](https://discordpy.readthedocs.io/en/latest/)"
 
+    def get_ending_note(self):
+        command_name = self.invoked_with
+        return "Use {0}{1} [command] for more info on a command.\n" \
+               "You can also use {0}{1} [category] for more info on a category.".format(self.clean_prefix, command_name)
+
     def add_bot_commands_formatting(self, commands, heading, embed):
         if commands:
             joined = "`"+"`\u2002`".join(c.name for c in commands)+"`"
@@ -27,6 +32,7 @@ class MyOwnHelp(commands.MinimalHelpCommand):
 
         e = discord.Embed(title=":abcd: | Help", description=self.get_opening_note(), color=0x78DBE2)
         e.set_thumbnail(url=bot.user.avatar_url_as(format="png"))
+        e.set_footer(text=self.get_ending_note())
 
         def get_category(command):
             cog = command.cog
@@ -55,4 +61,5 @@ class MyOwnHelp(commands.MinimalHelpCommand):
     async def send_command_help(self, command):
         signature = self.get_command_signature(command)
         e = discord.Embed(title=f":abcd: | Help: {signature}", description=f"{command.help}", color=0x78DBE2)
+        e.set_footer(text="<> - Nessesary, [] - Optional")
         await self.send_embed(e)
