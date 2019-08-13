@@ -24,6 +24,8 @@ with open("./data/config.json") as f:
 bot.loaded_cogs = list()
 bot.color = 0x78DBE2
 bot.launch_time = datetime.datetime.utcnow()
+bot.messages_read = 0
+bot.commands_used = 0
 debug_mode = bot.config["debug_mode"]
 
 #setting up logging
@@ -32,6 +34,16 @@ logger.setLevel(logging.DEBUG)
 handler = logging.FileHandler("discord.log", "w", "utf-8")
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
+
+
+@bot.event
+async def on_message(message):
+    bot.messages_read += 1
+    await bot.process_commands(message)
+
+@bot.event
+async def on_command(ctx):
+    bot.commands_used += 1
 
 
 if __name__ == "__main__":
@@ -57,7 +69,7 @@ async def on_ready():
     print("-----------------------------")
     print("Running on Python 3.6.5")
     print(f"discord.py ver: {discord.__version__}")
-    print(f"Mode: {'DEV Debug' if debug_mode else 'Release'}")
+    print(f"Mode: {'DEV Debug' if debug_mode else 'Stable'}")
     print("-----------------------------")
     print("Made by Løwenn#8437 with love <3")
 
