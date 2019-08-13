@@ -20,7 +20,7 @@ class ErrorHander(commands.Cog):
         if hasattr(ctx.command, "on_error"):
             return
         
-        ignored = (commands.CommandNotFound, commands.UserInputError)
+        ignored = (commands.CommandNotFound, commands.UserInputError, discord.errors.Forbidden)
         error = getattr(error, "original", error)
 
         if isinstance(error, ignored):

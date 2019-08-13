@@ -69,14 +69,17 @@ class Owner(commands.Cog):
     @commands.command(hidden=True)
     @commands.is_owner()
     async def reload(self, ctx, cog):
+        self.bot.loaded_cogs.remove(cog)
+
         try:
-            self.bot.loaded_cogs.remove(cog)
             self.bot.reload_extension("cogs." + cog)
-            self.bot.loaded_cogs.append(cog)
-            e = await self.__create_embed("Next cog was reloaded", f"```{cog}```", discord.Color.orange(), ":repeat:")
-            await ctx.send(embed=e)
         except:
-            await ctx.send(f"`Error!` ```{traceback.format_exc()}```")
+            return await ctx.send(f"`Error!` ```{traceback.format_exc()}```")
+
+        self.bot.loaded_cogs.append(cog)
+        e = await self.__create_embed("Next cog was reloaded", f"```{cog}```", discord.Color.orange(), ":repeat:")
+        await ctx.send(embed=e)
+        
 
 
     @commands.command(hidden=True)
