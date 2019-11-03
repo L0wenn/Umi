@@ -11,13 +11,14 @@ from cogs.utils import database as db
 class EventHandler(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.lvl_cooldown = []
-        self.cooldown_clear = self.bot.loop.create_task(self.__clear_cooldowns())
+        self.lvl_cooldown = list()
+        self.cooldown_clean = self.bot.loop.create_task(self.clear_cooldowns())
 
 
-    async def __clear_cooldowns(self):
-        self.lvl_cooldown.clear()
-        await asyncio.sleep(60)
+    async def clear_cooldowns(self):
+        while True:
+            self.lvl_cooldown.clear()
+            await asyncio.sleep(60)
 
     
     async def __check_existing_user(self, user, guild = None):
@@ -72,7 +73,7 @@ class EventHandler(commands.Cog):
             if guild == None:
                 e = discord.Embed(description=f":tada: | **Congratulations, {user.mention}! You have reached __{prev_lvl + 1} level__!**", color=self.bot.color)
                 return e
-
+                
 
     @Cog.listener()
     async def on_ready(self):
@@ -100,12 +101,18 @@ class EventHandler(commands.Cog):
         self.bot.messages_read += 1
 
         e = await self.__leveling_handler(message.author)
+        await self.__leveling_handler(message.author, message.guild)
+        
         try:
             await message.channel.send(embed = e)
         except discord.errors.HTTPException:
             pass
 
-        await self.__leveling_handler(message.author, message.guild)
+        
+    @commands.command(hidden = True)
+    @commands.is_owner()
+    async def cooldowns(self, ctx):
+        await ctx.send(self.lvl_cooldown)
 
 
 def setup(bot):
