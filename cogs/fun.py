@@ -274,14 +274,14 @@ class Fun(commands.Cog):
         await ctx.send(embed=e)
 
     
-    @commands.command()
+    @commands.command(aliases=["coin"])
     @commands.guild_only()
     @commands.cooldown(1, 6, type=BucketType.user)
     async def flipcoin(self, ctx):
         """Flips a coin for you!"""
         coin = random.randint(0, 1)
         e = discord.Embed(title="TAILS!!" if coin == 0 else "HEADS!!", color=self.bot.color)
-        e.set_image(url="https://shorturl.at/knEJ4" if coin == 0 else "https://shorturl.at/krAF6") #FIXME: change urls
+        e.set_image(url="https://bit.ly/301382B" if coin == 0 else "https://bit.ly/31BR1ct")
         await ctx.send(embed=e)
 
 

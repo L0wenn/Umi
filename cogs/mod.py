@@ -1,3 +1,4 @@
+import asyncio
 import discord
 from discord.ext import commands
 
@@ -68,7 +69,7 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.guild_only()
     @commands.has_permissions(manage_messages=True)
-    async def prune(self, ctx, amount: int, user:discord.Member = None):
+    async def prune(self, ctx, amount: int, user: discord.Member = None):
         """Clears `X` messages. You can define a user to delete only user's messages"""
         if amount > 500 or amount < 0:
             e = discord.Embed(title="Invalid amount. It must be greater than 0 and less than 500", color=discord.Color.red())
@@ -127,29 +128,55 @@ class Moderation(commands.Cog):
         pass
 
 
-    @role.command(hidden=True)
-    async def create(self, ctx, name, perms, color):
-        "Creates a role "
-        pass
-
-
-    @role.command(hidden=True)
-    async def delete(self, ctx, role):
-        pass
-
-
-    @commands.command(hidden=True)
+    @commands.command()
     @commands.guild_only()
     @commands.has_permissions(kick_members=True)
     async def mute(self, ctx, user: discord.Member, time: int = 10, *, reason: str = None):
-        pass
+        """Mute a specified user for some amount of time(in minutes)"""
+        try:
+            role = discord.utils.get(ctx.guild.roles, name="Muted")
+        except:
+            e = discord.Embed(title = ":mute: | Error",
+                            description = f"I can't find a role named `Muted`...", 
+                            color = discord.Color.red())
+            await ctx.send(embed = e)
+        else:
+            if role in user.roles:
+                e = discord.Embed(title=":mute: | Mute", description="This user is already muted", color=discord.Color.orange())
+                return await ctx.send(embed=e)
+            await user.add_roles(role)
+
+            e = discord.Embed(title=":mute: | User muted", 
+                            description=f"Muted: {user.mention}\nBy: {ctx.author.mention}\nFor: {time}m\nReason: {reason}", 
+                            color=discord.Color.orange())
+            await ctx.send(embed=e)
+            
+            await asyncio.sleep(time * 60)
+            await user.remove_roles(role)
 
 
-    @commands.command(hidden=True)
+    @commands.command()
     @commands.guild_only()
     @commands.has_permissions(kick_members=True)
     async def unmute(self, ctx, user: discord.Member):
-        pass
+        """Unmutes a user"""
+        try:
+            role = discord.utils.get(ctx.guild.roles, name="Muted")
+        except:
+            e = discord.Embed(title = ":mute: | Error",
+                            description = f"I can't find a role named `Muted`...", 
+                            color = discord.Color.red())
+            await ctx.send(embed = e)
+        else:
+            if role not in user.roles:
+                e = discord.Embed(title=":mute: | Mute", description="This user doesn't have mute role already", color=discord.Color.orange())
+                return await ctx.send(embed=e)
+
+            await user.remove_roles(role)
+            e = discord.Embed(title=":mute: | User unmuted", 
+                            description=f"Unmuted: {user.mention}\nBy: {ctx.author.mention}", 
+                            color=discord.Color.green())
+            await ctx.send(embed=e)
 
 
 def setup(bot):

@@ -40,24 +40,14 @@ class Core(commands.Cog):
         e = discord.Embed(title=":ping_pong: | Pong!!", description=f":heartbeat: | `{self.bot.latency*1000:.2f}ms`\n:clock1: | `{dur:.2f}ms`", color=self.bot.color)
         await msg.edit(embed=e)
 
-        if self.min_latency == None and self.max_latency == None:
-            self.max_latency = self.bot.latency
-            self.min_latency = self.bot.latency
-
-        elif self.min_latency > self.bot.latency and self.max_latency > self.bot.latency:
-            self.min_latency = self.bot.latency
-
-        elif self.max_latency < self.bot.latency and self.min_latency < self.bot.latency:
-            self.max_latency = self.bot.latency
-
     
     @commands.command()
     @commands.cooldown(1, 5, type=BucketType.user)
     async def invite(self, ctx):
         """Gives bot's invite link"""
-        e = discord.Embed(title=":incoming_envelope: | Invite the bot!", description="[Invite with Full permissions](https://discordapp.com/oauth2/authorize?client_id=424862035063603202&scope=bot&permissions=8) (recomended)\n" \
-                                                                                    "[Invite with Customizable permissions](https://discordapp.com/oauth2/authorize?client_id=424862035063603202&scope=bot&permissions=2146958839)", 
-        color=self.bot.color) #TODO: short these urls ffs
+        e = discord.Embed(title=":incoming_envelope: | Invite the bot!", description="[Invite with Full permissions](https://bit.ly/2H4OyiP) (recomended)\n" \
+                                                                                    "[Invite with Customizable permissions](https://bit.ly/2Z8GbZQ)", 
+        color=self.bot.color)
         await ctx.send(embed=e)
 
 
@@ -71,19 +61,16 @@ class Core(commands.Cog):
         e.add_field(name="Bot Version", value=self.bot.config["version"])
         e.add_field(name="Owner", value="Løwenn#8437")
         e.add_field(name="Guilds", value=len(self.bot.guilds))
-        e.add_field(name="Users", value=f"Total: {len(self.bot.users)}\n"\
-                                        f"{ds.online.value}: {len([user for user in self.bot.get_all_members() if user.status == discord.Status.online])}\n"\
+        e.add_field(name="Users", value=f"{ds.online.value}: {len([user for user in self.bot.get_all_members() if user.status == discord.Status.online])}\n"\
                                         f"{ds.idle.value}: {len([user for user in self.bot.get_all_members() if user.status == discord.Status.idle])}\n"\
                                         f"{ds.dnd.value}: {len([user for user in self.bot.get_all_members() if user.status == discord.Status.dnd])}\n"\
                                         f"{ds.offline.value}: {len([user for user in self.bot.get_all_members() if user.status == discord.Status.offline])}")
         e.add_field(name="Messages Read", value=self.bot.messages_read)
         e.add_field(name="Commands Used", value=self.bot.commands_used)
         e.add_field(name="Uptime", value=self.__get_uptime())
-        e.add_field(name="Latency", value=f"Min: `{self.min_latency*1000:.2f}ms`\n" \
-                                            f"Max: `{self.max_latency*1000:.2f}ms`\n")
         e.set_thumbnail(url=self.bot.user.avatar_url_as(format="png"))
-
         await ctx.send(embed=e)
+
 
     
 def setup(bot):

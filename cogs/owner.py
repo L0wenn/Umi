@@ -1,11 +1,14 @@
 import ast
 import datetime
 import os
+import sqlite3
 import sys
 import traceback
 
 import discord
 from discord.ext import commands
+
+from cogs.utils import database as db
 
 
 class Owner(commands.Cog):
@@ -16,6 +19,14 @@ class Owner(commands.Cog):
     async def __create_embed(self, title, description, color, emote):
         e = discord.Embed(title=f"{emote} | {title}", description=description, color=color)
         return e
+
+    
+    async def __send_to_log_channel(self, title, description, color):
+        log_channel_id = 627815860181925895
+        channel = self.bot.get_channel(log_channel_id)
+
+        e = discord.Embed(title = title, description = description, color = color)
+        await channel.send(embed = e)
 
 
     def insert_returns(self, body):
@@ -73,23 +84,58 @@ class Owner(commands.Cog):
 
         try:
             self.bot.reload_extension("cogs." + cog)
+            self.bot.loaded_cogs.append(cog)
+            e = await self.__create_embed("Next cog was reloaded", f"```{cog}```", discord.Color.orange(), ":repeat:")
+            await ctx.send(embed=e)
         except:
+            self.bot.loaded_cogs.remove(cog)
             return await ctx.send(f"`Error!` ```{traceback.format_exc()}```")
 
-        self.bot.loaded_cogs.append(cog)
-        e = await self.__create_embed("Next cog was reloaded", f"```{cog}```", discord.Color.orange(), ":repeat:")
-        await ctx.send(embed=e)
         
-
-
-    @commands.command(hidden=True)
+    @commands.group(hidden=True, aliases=["bl"])
     @commands.is_owner()
-    async def restart(self, ctx):
-        e = discord.Embed(title=":repeat: | Restarting the bot. It might take a while...", color=self.bot.color)
-        await ctx.send(embed=e)
-        print("\n\nRestart sequence requested...\n\n")
-        await self.bot.change_presence(status = discord.Status.dnd, activity = discord.Game("Restarting... @_@"))
-        os.execv(sys.executable, ["python"] + sys.argv)
+    async def blacklist(self, ctx):
+        if not ctx.invoked_subcommand:
+            e = discord.Embed(description="`add` `remove` `temp(WIP)`")
+            await ctx.send(embed=e)
+
+
+    @blacklist.command()
+    async def add(self, ctx, bid, *, reason: str = None):
+        try:
+            await db.get("id", "blacklist", "id", bid)
+        except:
+            await db.database.execute(f"INSERT INTO blacklist VALUES (?, ?, ?, ?)", (bid, reason, 0, None))#had to use it this way to escape errors
+            await db.database.commit() #FIXME
+
+            e = discord.Embed(title = ":no_pedestrians: | User/Guild blacklisted",
+                            description = f"ID: {bid}\nReason: {reason}", color = discord.Color.red())
+            await ctx.send(embed = e)
+            return await self.__send_to_log_channel(":warning: | User/Guild blacklisted", f"ID: {bid}\nReason: {reason}", discord.Color.red())
+        else:
+            e = discord.Embed(title=":warning: | Blacklist", description="This ID already exists...", color=discord.Color.red())
+            return await ctx.send(embed=e)
+
+    
+    @blacklist.command()
+    async def remove(self, ctx, bid):
+        try:
+            await db.get("id", "blacklist", "id", bid)
+        except:
+            e = discord.Embed(title=":warning: | Blacklist", description=f"ID({bid}) not found...", color=discord.Color.red())
+            return await ctx.send(embed=e)
+        else:
+            await db.delete("blacklist", f"id = {bid}")
+
+            e = discord.Embed(title = ":no_pedestrians: | User/Guild removed from the blacklist",
+                            description = f"ID: {bid}", color = self.bot.color)
+            await ctx.send(embed = e)
+            return await self.__send_to_log_channel(":warning: | User/Guild removed from the blacklist", f"ID: {bid}", self.bot.color)
+
+
+    @blacklist.command()
+    async def temp(self, ctx, id, time: int, *, reason: str):
+        pass
 
 
     @commands.command(hidden=True)
@@ -148,7 +194,6 @@ class Owner(commands.Cog):
         except:
             pass
         
-
     
 def setup(bot):
     bot.add_cog(Owner(bot))
