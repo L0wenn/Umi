@@ -6,6 +6,7 @@ import os
 import random
 import traceback
 
+from cogs.utils import database as db
 import discord
 from discord.ext import commands, tasks
 
@@ -20,13 +21,12 @@ bot = commands.Bot(command_prefix=get_prefix)
 with open("./data/config.json") as f:
     bot.config = json.load(f)
     
-
 bot.loaded_cogs = list()
 bot.color = 0x78DBE2
 bot.launch_time = datetime.datetime.utcnow()
 bot.messages_read = 0
 bot.commands_used = 0
-debug_mode = bot.config["debug_mode"]
+bot.debug_mode = bot.config["debug_mode"]
 
 #setting up logging
 logger = logging.getLogger("discord")
@@ -36,22 +36,14 @@ handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(me
 logger.addHandler(handler)
 
 
-@bot.event
-async def on_message(message):
-    bot.messages_read += 1
-    await bot.process_commands(message)
-
-@bot.event
-async def on_command(ctx):
-    bot.commands_used += 1
-
-
 if __name__ == "__main__":
-    if debug_mode == True:
+    if bot.debug_mode == True:
         bot.load_extension("cogs.owner")
         bot.loaded_cogs.append("owner")
         bot.load_extension("cogs.errorhandler")
         bot.loaded_cogs.append("errorhandler")
+        bot.load_extension("cogs.eventhandler")
+        bot.loaded_cogs.append("eventhandler")
     else:
         for cog in os.listdir("./cogs"):
             try:
@@ -61,17 +53,6 @@ if __name__ == "__main__":
             except:
                 print(traceback.print_exc())
                 continue
-
-
-@bot.event
-async def on_ready():
-    print("Bot online and ready to work!")
-    print("-----------------------------")
-    print("Running on Python 3.6.5")
-    print(f"discord.py ver: {discord.__version__}")
-    print(f"Mode: {'DEV Debug' if debug_mode else 'Stable'}")
-    print("-----------------------------")
-    print("Made by Løwenn#8437 with love <3")
 
       
 bot.run(bot.config["token"])

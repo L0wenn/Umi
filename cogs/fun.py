@@ -230,7 +230,7 @@ class Fun(commands.Cog):
         if not isinstance(img, str):
             return img
 
-        res = await helpers.get_json(f"https://nekobot.xyz/api/imagegen?type=trash&url={img}")
+        res = await helpers.get_json(f"https://nekobot.xyz/api/imagegen?type=awooify&url={img}")
         await ctx.send(embed=self.__nekobot_embed(res))
 
     

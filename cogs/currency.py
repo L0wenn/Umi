@@ -25,7 +25,8 @@ class Currency(commands.Cog):
             return False
 
     def noBank_error_message_yourself(self):
-        return "You don't have a bank account yet. To create one use `create` command"
+        e = discord.Embed(description = "You don't have a bank account yet. To create one use `create` command", color = discord.Color.red())
+        return e
 
     def noBank_error_message_someone(self, user):
         return f"{user.mention} doesn't have a bank account yet..."
@@ -63,9 +64,8 @@ class Currency(commands.Cog):
                         description=f":dollar: | Pocket: **`{pocket}`$**\n:bank: | Bank: **`{bank}`$**", color=self.bot.color)
             await ctx.send(embed=e)
         except TypeError:
-            e = discord.Embed(title=f":atm: | {user.name} balance", 
-                            description=self.noBank_error_message_yourself, color=self.bot.color)  
-            await ctx.send(embed=e) 
+            e = self.noBank_error_message_yourself             
+            return await ctx.send(embed=e)
 
 
     @commands.command()
@@ -73,6 +73,8 @@ class Currency(commands.Cog):
     @commands.cooldown(1, 5, type=BucketType.user)
     async def daily(self, ctx, user: discord.Member = None):
         """Take your dailies or give them someone. Also gives you a streak point which multiplies your daily"""
+        if user == ctx.author:
+            return
         if user == None:
             user = ctx.author
         if user.bot:
@@ -80,9 +82,7 @@ class Currency(commands.Cog):
         if not await self.check_bank_account(user.id):
             return
         if not await self.check_bank_account(ctx.author.id):
-            e = discord.Embed(title=":diamond_shape_with_a_dot_inside: | Daily",
-                            description=self.noBank_error_message_yourself, 
-                            color=discord.Color.red())
+            e = self.noBank_error_message_yourself             
             return await ctx.send(embed=e)
 
         date = await db.get("lastDaily", "bank", f"id = {user.id}")
@@ -125,7 +125,8 @@ class Currency(commands.Cog):
         if amount == None:
             pocket = await db.get("pocket", "bank", f"id = {ctx.author.id}")
         if not await self.check_bank_account(ctx.author.id):
-            return
+            e = self.noBank_error_message_yourself             
+            return await ctx.send(embed=e)
 
         await db.update("bank", f"pocket = pocket - {pocket if amount == None else amount}", f"id = {ctx.author.id}")
         await db.update("bank", f"bank = bank + {pocket if amount == None else amount}", f"id = {ctx.author.id}")
@@ -140,7 +141,8 @@ class Currency(commands.Cog):
     async def withdraw(self, ctx, amount: int):
         """Gives you `<amount>` of money from the bank"""
         if not await self.check_bank_account(ctx.author.id):
-            return
+            e = self.noBank_error_message_yourself             
+            return await ctx.send(embed=e)
 
         await db.update("bank", f"pocket = pocket + {amount}", f"id = {ctx.author.id}")
         await db.update("bank", f"bank = bank - {amount}", f"id = {ctx.author.id}")
@@ -191,6 +193,9 @@ class Currency(commands.Cog):
     @commands.cooldown(1, 30, type=BucketType.user)
     async def work(self, ctx):
         """Go to work and get paid for this!"""
+        if not await self.check_bank_account(ctx.author.id):
+            e = self.noBank_error_message_yourself             
+            return await ctx.send(embed=e)
         if ctx.author.id in self.working:
             e = discord.Embed(title=":convenience_store: | You're already at work", color=self.bot.color)
             return await ctx.send(embed=e)
@@ -215,10 +220,13 @@ class Currency(commands.Cog):
     @commands.cooldown(1, 60, type=BucketType.user)
     async def rob(self, ctx, user: discord.Member):
         """Get free money or get caught. How lucky are you?"""
+        if user == ctx.author:
+            return
         if user.bot:
             return
         if not await self.check_bank_account(ctx.author.id):
-            return
+            e = self.noBank_error_message_yourself             
+            return await ctx.send(embed=e)
 
         fate = random.randint(0, 2)
         if fate < 2: #Luck
@@ -254,7 +262,8 @@ class Currency(commands.Cog):
     async def slut(self, ctx):
         """Satisfy a customer and get paid for this..."""
         if not await self.check_bank_account(ctx.author.id):
-            return
+            e = self.noBank_error_message_yourself             
+            return await ctx.send(embed=e)
 
         mood = random.randint(0, 1) #no chances like for robbery
         if mood == 0:
