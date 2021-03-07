@@ -1,2 +1,2 @@
 # Umi
-Umi is a new Discord bot made to make your server more alive
+Umi is a Discord bot made for uni project
