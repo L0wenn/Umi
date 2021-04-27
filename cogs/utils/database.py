@@ -23,7 +23,7 @@ async def create_database():
         await db.execute('''CREATE TABLE IF NOT EXISTS "levelsRewards"(
         "gID"	INTEGER,
         "rID"   INTEGER,
-        "level"	INTEGER''')
+        "level"	INTEGER)''')
 
 
 async def insert(table, values):
