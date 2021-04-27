@@ -8,10 +8,7 @@ from discord.ext import commands
 
 
 def get_prefix(bot, message):
-    try:
-        prefixes = os.environ.get("PREFIX")
-    except:
-        prefixes = bot.config["prefixes"]
+    prefixes = bot.config["prefixes"]
 
     return commands.when_mentioned_or(*prefixes)(bot, message)
 
