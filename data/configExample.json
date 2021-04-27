@@ -1,0 +1,9 @@
+{
+    "version"   :   "0.4.2",
+    "token" :   "Your token here",
+    "prefixes"  :   ["u!", "u?"],
+    "debugMode"    :   false,
+    "loadOnDebugOnly"   :   ["owner", "errorhandler", "eventhandler"],
+    "ignoredCogs"  :   [],
+    "tenorAPI"  :   "Your TenorAPI key here"
+}
