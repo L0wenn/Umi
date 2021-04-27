@@ -1,10 +1,8 @@
 import asyncio
 import datetime
-import math
 import operator
 from random import randint
 
-import aiohttp
 import discord
 from discord.ext import commands
 from discord.ext.commands import BucketType, Cog
@@ -21,7 +19,7 @@ class Leveling(commands.Cog):
         users = []
 
         if mode == 0: #global
-            userlist = await db.getmany("id, exp", "levelsGlobal")
+            userlist = await db.getmany("uID, exp", "levelsGlobal")
         else: #server
             userlist = await db.getmany("uID, exp", "levelsGuilds", f"gID = {server.id}")
 
@@ -53,12 +51,12 @@ class Leveling(commands.Cog):
         if user.bot:
             return
 
-        lvl = await db.get("level", "levelsGlobal", f"id = {user.id}")
-        exp = await db.get("exp", "levelsGlobal", f"id = {user.id}")
-        next_level = await db.get("nextLevel", "levelsGlobal", f"id = {user.id}")
-        reps = await db.get("reputation", "levelsGlobal", f"id = {user.id}")
+        lvl = await db.get("level", "levelsGlobal", f"uID = {user.id}")
+        exp = await db.get("exp", "levelsGlobal", f"uID = {user.id}")
+        next_level = await db.get("nextLvlExp", "levelsGlobal", f"uID = {user.id}")
+        reps = await db.get("reputation", "levelsGlobal", f"uID = {user.id}")
         gl_place = await self.__calculate_place(user, 0)
-        desc = await db.get("description", "levelsGlobal", f"id = {user.id}")
+        desc = await db.get("description", "levelsGlobal", f"uID = {user.id}")
 
         e = discord.Embed(title=f"{user} Profile", description= f":earth_americas: | Level: **{lvl} ({exp}/{next_level})**\n" \
                                                                 f":chart_with_upwards_trend: | Reputation: **{reps}**\n" \
@@ -82,7 +80,7 @@ class Leveling(commands.Cog):
 
         lvl = await db.get("level", "levelsGuilds", f"uID = {user.id} AND gID = {ctx.guild.id}")
         exp = await db.get("exp", "levelsGuilds", f"uID = {user.id} AND gID = {ctx.guild.id}")
-        next_level = await db.get("nextLevel", "levelsGuilds", f"uID = {user.id} AND gID = {ctx.guild.id}")
+        next_level = await db.get("nextLvlExp", "levelsGuilds", f"uID = {user.id} AND gID = {ctx.guild.id}")
         s_place = await self.__calculate_place(user, 1, ctx.guild)
 
         e = discord.Embed(title=f"{user} Server Rank", description= f":one: | Level: **{lvl} ({exp}/{next_level})**\n" \
@@ -102,7 +100,7 @@ class Leveling(commands.Cog):
         if user == ctx.author:
             return
 
-        date = await db.get("lastRep", "levelsGlobal", f"id = {user.id}")
+        date = await db.get("repTimeout", "levelsGlobal", f"uID = {ctx.author.id}")
         last_rep = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
         dtnow = datetime.datetime.now()
         diff = dtnow - last_rep
@@ -111,95 +109,75 @@ class Leveling(commands.Cog):
         if diff.days == 0:
             s = left.total_seconds()
             h, m = s // 3600, (s % 3600) // 60
-            e = discord.Embed(description = f":x: | You can reward a rep point again in `{int(h)}h` and `{int(m)}m`")
+            e = discord.Embed(description = f":x: | You can reward a rep point again in `{int(h)}h` and `{int(m)}m`", color = discord.Color.red())
             return await ctx.send(embed = e)
 
         try:
-            await db.update("levelsGlobal", "reputation = reputation + 1", f"id = {user.id}")
+            await db.update("levelsGlobal", "reputation = reputation + 1", f"uID = {user.id}")
         except:
             e = discord.Embed(title = ":x: | Failed to give a reputation point", color = discord.Color.red())
             return await ctx.send(embed = e)
         
-        await db.update("levelsGlobal", 'lastRep = datetime("now", "localtime")', f"id = {ctx.author.id}")
+        await db.update("levelsGlobal", 'repTimeout = datetime("now", "localtime")', f"uID = {ctx.author.id}")
         e = discord.Embed(description = f"**:up: | {ctx.author.mention} has given {user.mention} a reputation point**", color = self.bot.color)
         return await ctx.send(embed = e)
     
 
-    @commands.command(aliases=["lrr"])
-    @commands.guild_only()
-    @commands.has_permissions(manage_roles=True)
-    async def lvlrolereward(self, ctx, lvl: int, *, roleName = None):
-        """Sets a role on specified level. 
-        Provide no role name in order to delete the role reward
+    # I'll leave it like this for now
+    # @commands.command(aliases=["lrr"])
+    # @commands.guild_only()
+    # @commands.has_permissions(manage_roles=True)
+    # async def lvlrolereward(self, ctx, lvl: int, *, roleName = None):
+    #     """Sets a role on specified level. 
+    #     Provide no role name in order to delete the role reward
         
-        **Requires `Manage Roles` permission**
-        """
-        if roleName == None:
-            try:
-                await db.delete("levelsRewards", f"gID = {ctx.guild.id} AND level = {lvl}")
-            except:
-                e = discord.Embed(title = ":x: | There's already no rewards at this level!", color = discord.Color.red())
-                return await ctx.send(embed = e)
+    #     **Requires `Manage Roles` permission**
+    #     """
+    #     if roleName == None:
+    #         try:
+    #             await db.delete("levelsRewards", f"gID = {ctx.guild.id} AND level = {lvl}")
+    #         except:
+    #             e = discord.Embed(title = ":x: | There's already no rewards at this level!", color = discord.Color.red())
+    #             return await ctx.send(embed = e)
 
-        try:
-            role = discord.utils.get(ctx.guild.roles, name=roleName)
-        except:
-            e = discord.Embed(title = ":x: | Unable to find the role!", color = discord.Color.red())
-            return await ctx.send(embed = e)
-        else:
-            await db.insert("levelsRewards(gID, rID, level)", f"{ctx.guild.id}, {role.id}, {lvl}")
+    #     try:
+    #         role = discord.utils.get(ctx.guild.roles, name=roleName)
+    #     except:
+    #         e = discord.Embed(title = ":x: | Unable to find the role!", color = discord.Color.red())
+    #         return await ctx.send(embed = e)
+    #     else:
+    #         await db.insert("levelsRewards(gID, rID, level)", f"{ctx.guild.id}, {role.id}, {lvl}")
 
-            e = discord.Embed(description = f":white_check_mark: | Users, who reach __{lvl} level__ will receive `{role.name}` role", color = discord.Color.green())
-            return await ctx.send(embed = e)
+    #         e = discord.Embed(description = f":white_check_mark: | Users, who reach __{lvl} level__ will receive `{role.name}` role", color = discord.Color.green())
+    #         return await ctx.send(embed = e)
 
     
-    @commands.command(aliases=["lur"])
-    @commands.guild_only()
-    @commands.cooldown(1, 5, type=BucketType.user)
-    async def lvluprewards(self, ctx, page: int = 1):
-        """Shows current level up rewards"""
-        start = 0 if page == 1 else page * 10 - 9
-        end = page * 10
+    # @commands.command(aliases=["lur"])
+    # @commands.guild_only()
+    # @commands.cooldown(1, 5, type=BucketType.user)
+    # async def lvluprewards(self, ctx, page: int = 1):
+    #     """Shows current level up rewards"""
+    #     start = 0 if page == 1 else page * 10 - 9
+    #     end = page * 10
 
-        data = await db.getmany("rID, level", "levelsRewards", f"gID = {ctx.guild.id} ORDER BY level DESC")
-        try:
-            check = data[0]
-        except IndexError:
-            e = discord.Embed(title = ":x: | This server doesn't have rewards yet", color = discord.Color.red())
-            return await ctx.send(embed = e)
+    #     data = await db.getmany("rID, level", "levelsRewards", f"gID = {ctx.guild.id} ORDER BY level DESC")
+    #     try:
+    #         check = data[0]
+    #     except IndexError:
+    #         e = discord.Embed(title = ":x: | This server doesn't have rewards yet", color = discord.Color.red())
+    #         return await ctx.send(embed = e)
 
-        total_pages = round(len(data) / 10)
-        e = discord.Embed(title = ":up: | Server Rewards", color = self.bot.color)
-        e.set_footer(text=f"Page: {page}/{total_pages + 1}")
-        for i in range(start, end):
-            try:
-                role = discord.utils.get(ctx.guild.roles, id = data[i][0])
-                e.add_field(name = f"Level {data[i][1]}", value = f"{role.mention} role", inline = False)
-            except IndexError:
-                pass
+    #     total_pages = round(len(data) / 10)
+    #     e = discord.Embed(title = ":up: | Server Rewards", color = self.bot.color)
+    #     e.set_footer(text=f"Page: {page}/{total_pages + 1}")
+    #     for i in range(start, end):
+    #         try:
+    #             role = discord.utils.get(ctx.guild.roles, id = data[i][0])
+    #             e.add_field(name = f"Level {data[i][1]}", value = f"{role.mention} role", inline = False)
+    #         except IndexError:
+    #             pass
 
-        return await ctx.send(embed = e)
-
-
-    @commands.command(aliases=["ae"])
-    @commands.guild_only()
-    @commands.has_permissions(administrator=True)
-    async def addexp(self, ctx, user: discord.Member, amount: int):
-        """Adds EXP points to specified user.
-
-        This is doesn't affect on global ranking. 
-        You also can pass negative values
-
-        **Requires `Administrator` permission**
-        """
-        try:
-            await db.update("levelsGuilds", f"exp = exp + {amount}", f"id = {user.id}")
-        except:
-            e = discord.Embed(title=":x: | An unknown error occured!", color = discord.Color.red())
-            return await ctx.send(embed = e)
-
-        e = discord.Embed(title = f":up: | Added {amount}exp to {user}")
-        return await ctx.send(embed = e)
+    #     return await ctx.send(embed = e)
 
 
     @commands.command()

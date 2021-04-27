@@ -1,46 +1,71 @@
 import aiosqlite
 
-database = None
+path = "bot/Umi/data/umi.db"
 
+async def create_database():
+    async with aiosqlite.connect(path) as db:
+        await db.execute('''CREATE TABLE IF NOT EXISTS "levelsGlobal"(
+        "uID"	INTEGER,
+        "level"	INTEGER,
+        "exp"	INTEGER,
+        "nextLvlExp"	INTEGER,
+        "reputation"	INTEGER,
+        "description"	INTEGER,
+        "repTimeout"	TEXT)''')
 
-async def connect():
-    global database
-    database = await aiosqlite.connect("umi.db")
-    
+        await db.execute('''CREATE TABLE IF NOT EXISTS "levelsGuilds"(
+        "uID"	INTEGER,
+        "gID"   INTEGER,
+        "level"	INTEGER,
+        "exp"	INTEGER,
+        "nextLvlExp"	INTEGER)''')
+
+        await db.execute('''CREATE TABLE IF NOT EXISTS "levelsRewards"(
+        "gID"	INTEGER,
+        "rID"   INTEGER,
+        "level"	INTEGER''')
+
 
 async def insert(table, values):
     """Creates a new item in database"""
-    await database.execute(f"INSERT INTO {table} VALUES ({values})")
-    return await database.commit()
+    async with aiosqlite.connect(path) as db:
+        await db.execute(f"INSERT INTO {table} VALUES ({values})")
+        await db.commit()
     
 
-async def get(predicate, table, field):
+async def get(item, table, field):
     """Returns an item"""
-    cursor = await database.execute(f"SELECT {predicate} FROM {table} WHERE {field}")
-    row = await cursor.fetchone()
+    async with aiosqlite.connect(path) as db:
+        cursor = await db.execute(f"SELECT {item} FROM {table} WHERE {field}")
+        row = await cursor.fetchone()
+
     return row[0]
 
 
-async def getmany(predicate, table, field = None):
+async def getmany(item, table, field = None):
     """Returns a list of items"""
     if field:
-        fmt = f"SELECT {predicate} FROM {table} WHERE {field}"
+        fmt = f"SELECT {item} FROM {table} WHERE {field}"
     else:
-        fmt = f"SELECT {predicate} FROM {table}"
+        fmt = f"SELECT {item} FROM {table}"
 
-    cursor = await database.execute(fmt)
-    rows = await cursor.fetchall()
+    async with aiosqlite.connect(path) as db:
+        cursor = await db.execute(fmt)
+        rows = await cursor.fetchall()
+
     return rows
 
 
-async def update(table, predicate, field):
+async def update(table, item, field):
     """Updates an item"""
-    await database.execute(f"UPDATE {table} SET {predicate} WHERE {field}")
-    return await database.commit()
+    async with aiosqlite.connect(path) as db:
+        await db.execute(f"UPDATE {table} SET {item} WHERE {field}")
+        await db.commit()
 
 
-async def delete(table, predicate):
+async def delete(table, item):
     """Deletes an item"""
-    await database.execute(f"DELETE FROM {table} WHERE {predicate}")
-    return await database.commit()
+    async with aiosqlite.connect(path) as db:
+        await db.execute(f"DELETE FROM {table} WHERE {item}")
+        await db.commit()
     

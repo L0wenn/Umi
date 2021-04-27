@@ -1,32 +1,31 @@
-import asyncio
 import datetime
 import json
 import logging
 import os
-import random
 import traceback
 
-from cogs.utils import database as db
-import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
 
 
 def get_prefix(bot, message):
-    prefixes = bot.config["prefixes"]
+    try:
+        prefixes = os.environ("PREFIX")
+    except:
+        prefixes = bot.config["prefixes"]
+
     return commands.when_mentioned_or(*prefixes)(bot, message)
 
 
 bot = commands.Bot(command_prefix=get_prefix)
 
-with open("./data/config.json") as f:
+with open("bot/Umi/data/config.json") as f:
     bot.config = json.load(f)
     
 bot.loaded_cogs = list()
 bot.color = 0x78DBE2
 bot.launch_time = datetime.datetime.utcnow()
-bot.messages_read = 0
 bot.commands_used = 0
-bot.debug_mode = bot.config["debug_mode"]
+
 
 #setting up logging
 logger = logging.getLogger("discord")
@@ -45,9 +44,9 @@ if __name__ == "__main__":
         bot.load_extension("cogs.eventhandler")
         bot.loaded_cogs.append("eventhandler")
     else:
-        for cog in os.listdir("./cogs"):
+        for cog in os.listdir("bot/Umi/cogs"):
             try:
-                if cog.endswith(".py") and cog not in bot.config["ignored_cogs"]:
+                if cog.endswith(".py") and cog not in bot.config["ignoredCogs"]:
                     bot.load_extension("cogs." + cog.replace(".py", ""))
                     bot.loaded_cogs.append(cog.replace(".py", ""))
             except:
@@ -55,4 +54,4 @@ if __name__ == "__main__":
                 continue
 
       
-bot.run(bot.config["token"])
+bot.run(os.environ("TOKEN") if not bot.debug_mode else bot.config["token"])

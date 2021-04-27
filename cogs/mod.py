@@ -16,17 +16,18 @@ class Moderation(commands.Cog):
     @commands.guild_only()
     @commands.has_permissions(ban_members=True)
     async def ban(self, ctx, user: discord.Member, *, reason=None, delete_message_days=7):
-        """Bans a user from the server"""
+        """Bans a user from the server"""        
+        e = discord.Embed(title=":hammer: | You have been banned",
+                        description=f"By: {ctx.author.mention}\nWith reason: {reason}",
+                        color=self.bot.color)
+        await user.send(embed=e)
+
         await user.ban(reason=reason, delete_message_days=7)
         e = self.__create_thumbnail_embed(title=":hammer: | User Banned",
                                     description=f"Banned: {user.mention}\nBy: {ctx.author.mention}\nReason: {reason}",
                                     color=discord.Color.red(),
                                     thumbnail=user.avatar_url_as(format="png"))
         await ctx.send(embed=e)
-        e = discord.Embed(title=":hammer: | You have been banned",
-                        description=f"By: {ctx.author.mention}\nWith reason: {reason}",
-                        color=self.bot.color)
-        await user.send(embed=e)
 
 
     @commands.command()
@@ -34,29 +35,32 @@ class Moderation(commands.Cog):
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx, user: discord.Member, *, reason=None):
         """Kicks a user from the server"""
+        e = discord.Embed(title=":boot: | You have been kicked",
+                        description=f"By: {ctx.author.mention}\nWith reason: {reason}",
+                        color=self.bot.color)
+        await user.send(embed=e)
+
         await user.kick(reason=reason)
         e = self.__create_thumbnail_embed(title=":boot: | User Kicked",
                                     description=f"Kicked: {user.mention}\nBy: {ctx.author.mention}\nReason: {reason}",
                                     color=discord.Color.orange(),
                                     thumbnail=user.avatar_url_as(format="png"))
         await ctx.send(embed=e)
-        e = discord.Embed(title=":boot: | You have been kicked",
-                        description=f"By: {ctx.author.mention}\nWith reason: {reason}",
-                        color=self.bot.color)
-        await user.send(embed=e)
+
+        
 
         
     @commands.command()
     @commands.guild_only()
     @commands.has_permissions(ban_members=True)
-    async def unban(self, ctx, user, *, reason=None):
+    async def unban(self, ctx, *, user):
         """Unbans a user"""
         for banned in await ctx.guild.bans():
             if user.lower() == banned[1].name.lower():
-                await ctx.guild.unban(user=banned[1], reason=reason)
+                await ctx.guild.unban(user=banned[1], reason=f"Unbanned by {ctx.author}")
 
                 e = discord.Embed(title=":hammer: | User Unbanned",
-                                description=f"Unbanned: {banned[1].mention}\nBy: {ctx.author.mention}\nReason: {reason}",
+                                description=f"Unbanned: {banned[1].mention}\nBy: {ctx.author.mention}",
                                 color=self.bot.color)
                 await ctx.send(embed=e)
                 break
@@ -84,15 +88,10 @@ class Moderation(commands.Cog):
         await ctx.send(embed=e, delete_after=10)
 
 
-    @commands.group()
+    @commands.command()
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
-    async def role(self, ctx):
-        pass
-
-    
-    @role.command()
-    async def add(self, ctx, user:discord.Member, *, rolename):
+    async def roleadd(self, ctx, user:discord.Member, *, rolename):
         """Adds a role to a user"""
         try:
             role = discord.utils.get(ctx.guild.roles, name=rolename)
@@ -107,10 +106,12 @@ class Moderation(commands.Cog):
         e = discord.Embed(title="Role added", 
                         description=f"{ctx.author.mention} has given a {role.mention} role to {user.mention}", color=self.bot.color)
         await ctx.send(embed=e)
-        
 
-    @role.command()
-    async def remove(self, ctx, user:discord.Member, *, rolename):
+    
+    @commands.command()
+    @commands.guild_only()
+    @commands.has_permissions(manage_roles=True)
+    async def roleremove(self, ctx, user:discord.Member, *, rolename):
         """Removes a role from a user""" 
         try:
             role = discord.utils.get(ctx.guild.roles, name=rolename)
@@ -124,8 +125,7 @@ class Moderation(commands.Cog):
 
         e = discord.Embed(title="Role removed", 
                         description=f"{ctx.author.mention} has took a {role.mention} role from {user.mention}", color=self.bot.color)
-        await ctx.send(embed=e)
-        pass
+        await ctx.send(embed=e)   
 
 
     @commands.command()

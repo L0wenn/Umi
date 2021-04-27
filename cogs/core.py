@@ -1,4 +1,5 @@
-import itertools
+import platform
+import sys
 import time
 from datetime import datetime
 
@@ -7,7 +8,6 @@ from discord.ext import commands
 from discord.ext.commands import BucketType
 
 from cogs.utils.help import MyOwnHelp
-from cogs.utils.enums import DiscordStatuses as ds, Logos
 
 
 class Core(commands.Cog):
@@ -37,7 +37,7 @@ class Core(commands.Cog):
         msg = await ctx.send(embed=e)
         end = time.perf_counter()
         dur = (end - start) * 1000
-        e = discord.Embed(title=":ping_pong: | Pong!!", description=f":heartbeat: | `{self.bot.latency*1000:.2f}ms`\n:clock1: | `{dur:.2f}ms`", color=self.bot.color)
+        e = discord.Embed(title=":ping_pong: | Pong!!", description=f":heartbeat: | `{self.bot.latency*1000:.2f}ms`\n:incoming_envelope: | `{dur:.2f}ms`", color=self.bot.color)
         await msg.edit(embed=e)
 
     
@@ -55,17 +55,13 @@ class Core(commands.Cog):
     @commands.cooldown(1, 12, type=BucketType.user)  
     async def about(self, ctx):
         """Shows the main info about the bot"""
-        e = discord.Embed(title=f"{Logos.discord.value} | About", description="Hello! I am Umi! And I'm here to make your server shine~!", color=self.bot.color)
-        e.add_field(name="Running On", value=f"Python 3.6.5 {Logos.python.value}")
+        e = discord.Embed(title=f":blue_book: | About", description="Hello! I am Umi! A bot made for uni project", color=self.bot.color)
+        e.add_field(name="Running On", value=f"Python {sys.version[:5]}")
+        e.add_field(name="System", value=f"{platform.system()} {platform.release()}")
         e.add_field(name="Main Lib", value=f"discord.py {discord.__version__}")
         e.add_field(name="Bot Version", value=self.bot.config["version"])
-        e.add_field(name="Owner", value="Løwenn#8437")
+        e.add_field(name="Owner", value="<@266589228077416459>")
         e.add_field(name="Guilds", value=len(self.bot.guilds))
-        e.add_field(name="Users", value=f"{ds.online.value}: {len([user for user in self.bot.get_all_members() if user.status == discord.Status.online])}\n"\
-                                        f"{ds.idle.value}: {len([user for user in self.bot.get_all_members() if user.status == discord.Status.idle])}\n"\
-                                        f"{ds.dnd.value}: {len([user for user in self.bot.get_all_members() if user.status == discord.Status.dnd])}\n"\
-                                        f"{ds.offline.value}: {len([user for user in self.bot.get_all_members() if user.status == discord.Status.offline])}")
-        e.add_field(name="Messages Read", value=self.bot.messages_read)
         e.add_field(name="Commands Used", value=self.bot.commands_used)
         e.add_field(name="Uptime", value=self.__get_uptime())
         e.set_thumbnail(url=self.bot.user.avatar_url_as(format="png"))
