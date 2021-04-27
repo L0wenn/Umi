@@ -1,6 +1,6 @@
 import aiosqlite
 
-path = "bot/Umi/data/umi.db"
+path = "data/umi.db"
 
 async def create_database():
     async with aiosqlite.connect(path) as db:

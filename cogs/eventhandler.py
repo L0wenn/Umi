@@ -98,7 +98,7 @@ class EventHandler(commands.Cog):
 
     @Cog.listener()
     async def on_ready(self):
-        if os.path.isfile("bot/Umi/data/umi.db") == False:
+        if os.path.isfile("data/umi.db") == False:
             try:
                 await db.create_database()
             except Exception as e:

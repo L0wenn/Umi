@@ -18,7 +18,7 @@ def get_prefix(bot, message):
 
 bot = commands.Bot(command_prefix=get_prefix)
 
-with open("bot/Umi/data/config.json") as f:
+with open("data/config.json") as f:
     bot.config = json.load(f)
     
 bot.loaded_cogs = list()
@@ -44,7 +44,7 @@ if __name__ == "__main__":
         bot.load_extension("cogs.eventhandler")
         bot.loaded_cogs.append("eventhandler")
     else:
-        for cog in os.listdir("bot/Umi/cogs"):
+        for cog in os.listdir("cogs"):
             try:
                 if cog.endswith(".py") and cog not in bot.config["ignoredCogs"]:
                     bot.load_extension("cogs." + cog.replace(".py", ""))
