@@ -15,7 +15,7 @@ class Reactions(commands.Cog):
 
 
     async def __get_gif(self, search_term):
-        key = os.environ("TENORAPI") if not self.bot.debug_mode else self.bot.config["tenorAPI"]
+        key = os.environ.get("TENORAPI") if not self.bot.debug_mode else self.bot.config["tenorAPI"]
         res = await gj("https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s" % (search_term, key, 15))
         obj = choice(res["results"])
         image = obj["media"][0]["gif"]["url"]

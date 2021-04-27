@@ -9,7 +9,7 @@ from discord.ext import commands
 
 def get_prefix(bot, message):
     try:
-        prefixes = os.environ("PREFIX")
+        prefixes = os.environ.get("PREFIX")
     except:
         prefixes = bot.config["prefixes"]
 
@@ -54,4 +54,4 @@ if __name__ == "__main__":
                 continue
 
       
-bot.run(os.environ("TOKEN") if not bot.debug_mode else bot.config["token"])
+bot.run(os.environ.get("TOKEN") if not bot.debug_mode else bot.config["token"])
