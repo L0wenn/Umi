@@ -46,7 +46,7 @@ class Fun(commands.Cog):
 
         return x.attachments[0].url
 
-
+    # TODO: Discord doesn't want to attach a pic to embeds for some reason?
     def __nekobot_embed(self, data, key="message"):
         e = discord.Embed(color=self.bot.color)
         e.set_image(url=data[key])
@@ -63,8 +63,9 @@ class Fun(commands.Cog):
         if not isinstance(img, str):
             return img
 
+        await ctx.trigger_typing()
         res = await helpers.get_json(f"https://nekobot.xyz/api/imagegen?type=blurpify&image={img}")
-        await ctx.send(embed=self.__nekobot_embed(res))
+        await ctx.send(self.__nekobot_embed(res))
 
 
     @commands.command(aliases=["phc", "ph"])
@@ -101,6 +102,7 @@ class Fun(commands.Cog):
         if not isinstance(img, str):
             return img
 
+        await ctx.trigger_typing()
         res = await helpers.get_json(f"https://nekobot.xyz/api/imagegen?type=threats&url={img}")
         await ctx.send(embed=self.__nekobot_embed(res))
 
@@ -114,6 +116,7 @@ class Fun(commands.Cog):
         if not isinstance(img, str):
             return img
 
+        await ctx.trigger_typing()
         res = await helpers.get_json(f"https://nekobot.xyz/api/imagegen?type=bodypillow&url={img}")
         await ctx.send(embed=self.__nekobot_embed(res))
 
@@ -138,6 +141,7 @@ class Fun(commands.Cog):
         if not isinstance(img, str):
             return img
 
+        await ctx.trigger_typing()
         res = await helpers.get_json(f"https://nekobot.xyz/api/imagegen?type=deepfry&image={img}")
         await ctx.send(embed=self.__nekobot_embed(res))
     
@@ -230,6 +234,7 @@ class Fun(commands.Cog):
         if not isinstance(img, str):
             return img
 
+        await ctx.trigger_typing()
         res = await helpers.get_json(f"https://nekobot.xyz/api/imagegen?type=awooify&url={img}")
         await ctx.send(embed=self.__nekobot_embed(res))
 
@@ -252,6 +257,7 @@ class Fun(commands.Cog):
         if not isinstance(img, str):
             return img
 
+        await ctx.trigger_typing()
         res = await helpers.get_json(f"https://nekobot.xyz/api/imagegen?type=magik&image={img}")
         await ctx.send(embed=self.__nekobot_embed(res))
 #end of nekobot functions: https://github.com/hibikidesu/NekoBot

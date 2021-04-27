@@ -207,7 +207,7 @@ class Leveling(commands.Cog):
         if confirm.content.lower() == "yes":
             await db.update("levelsGuilds", "level = 1", field)
             await db.update("levelsGuilds", "exp = 0", field)
-            await db.update("levelsGuilds", "nextLevel = 36", field)
+            await db.update("levelsGuilds", "nextLvlExp = 36", field)
 
             e = discord.Embed(title = fmt, color = discord.Color.green())
             return await msg.edit(embed = e)
@@ -220,7 +220,7 @@ class Leveling(commands.Cog):
     @commands.cooldown(1, 10, type=BucketType.user)
     async def leaderboard(self, ctx):
         """Shows global level leaderboard."""
-        data = await db.getmany("id, level, exp", "levelsGlobal ORDER BY exp DESC LIMIT 10")
+        data = await db.getmany("uID, level, exp", "levelsGlobal ORDER BY exp DESC LIMIT 10")
         gl_place = await self.__calculate_place(ctx.author, 0)
 
         e = discord.Embed(title = ":earth_americas: | Global Leaderboard", color = self.bot.color)
@@ -244,7 +244,7 @@ class Leveling(commands.Cog):
         Provide no text in order to reset your description
         """
         if text == None:
-            await db.update("levelsGlobal", "description = NULL", f"id = {ctx.author.id}")
+            await db.update("levelsGlobal", "description = NULL", f"uID = {ctx.author.id}")
 
             e = discord.Embed(title = ":page_facing_up: | Your description has been reset successfuly!", color = self.bot.color)
             return await ctx.send(embed=e)
@@ -253,7 +253,7 @@ class Leveling(commands.Cog):
             e = discord.Embed(title = ":page_facing_up: | Your description is longer than 125 characters", color = discord.Color.red())
             return await ctx.send(embed=e)
 
-        await db.update("levelsGlobal", f'description = "{text}"', f"id = {ctx.author.id}")
+        await db.update("levelsGlobal", f'description = "{text}"', f"uID = {ctx.author.id}")
 
         e = discord.Embed(title = ":page_facing_up: | Your description has been set!", color = self.bot.color)
         return await ctx.send(embed=e)
