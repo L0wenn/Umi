@@ -25,7 +25,7 @@ bot.loaded_cogs = list()
 bot.color = 0x78DBE2
 bot.launch_time = datetime.datetime.utcnow()
 bot.commands_used = 0
-
+bot.debug_mode = bot.config["debugMode"]
 
 #setting up logging
 logger = logging.getLogger("discord")
