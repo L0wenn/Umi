@@ -53,10 +53,6 @@ class ErrorHander(commands.Cog):
         elif isinstance(error, commands.UserInputError):
             pass
 
-        elif isinstance(error, commands.CheckFailure):
-            e = await self.__build_error_embed(":x: | You don't have permissions to use this command")
-            await ctx.send(embed=e)
-
         elif isinstance(error, commands.MissingPermissions):
             missing = [perms.replace("_", ' ').replace("guild", "server").title() for perms in error.missing_perms]
             if len(missing) > 2:
@@ -66,6 +62,10 @@ class ErrorHander(commands.Cog):
 
             e = await self.__build_error_embed(":x: | Bot Missing Permissions", f"You need permissions to run this command: ```{fmt}```")
             return await ctx.send(embed=e)
+
+        elif isinstance(error, commands.CheckFailure):
+            e = await self.__build_error_embed(":x: | You don't have permissions to use this command")
+            await ctx.send(embed=e)
 
 
         #ignore all other exception types, but print them in stderr

@@ -1,29 +1,23 @@
 import aiosqlite
 
-path = "data/umi.db"
+path = "bot/Umi/data/umi.db"
+
+# TODO: Move from sqlite to Postgresql
 
 async def create_database():
     async with aiosqlite.connect(path) as db:
-        await db.execute('''CREATE TABLE IF NOT EXISTS "levelsGlobal"(
+        await db.execute('''CREATE TABLE IF NOT EXISTS "global"(
         "uID"	INTEGER,
-        "level"	INTEGER,
-        "exp"	INTEGER,
-        "nextLvlExp"	INTEGER,
         "reputation"	INTEGER,
         "description"	INTEGER,
         "repTimeout"	TEXT)''')
 
-        await db.execute('''CREATE TABLE IF NOT EXISTS "levelsGuilds"(
+        await db.execute('''CREATE TABLE IF NOT EXISTS "levels"(
         "uID"	INTEGER,
         "gID"   INTEGER,
         "level"	INTEGER,
         "exp"	INTEGER,
         "nextLvlExp"	INTEGER)''')
-
-        await db.execute('''CREATE TABLE IF NOT EXISTS "levelsRewards"(
-        "gID"	INTEGER,
-        "rID"   INTEGER,
-        "level"	INTEGER)''')
 
 
 async def insert(table, values):

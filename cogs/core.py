@@ -7,14 +7,14 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import BucketType
 
-from cogs.utils.help import MyOwnHelp
+from cogs.utils.help import BotHelp
 
 
 class Core(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self._original_help_command = bot.help_command
-        bot.help_command = MyOwnHelp()
+        bot.help_command = BotHelp()
         bot.help_command.cog = self
         self.min_latency = None
         self.max_latency = None
@@ -59,7 +59,6 @@ class Core(commands.Cog):
         e.add_field(name="Running On", value=f"Python {sys.version[:5]}")
         e.add_field(name="System", value=f"{platform.system()} {platform.release()}")
         e.add_field(name="Main Lib", value=f"discord.py {discord.__version__}")
-        e.add_field(name="Bot Version", value=self.bot.config["version"])
         e.add_field(name="Owner", value="<@266589228077416459>")
         e.add_field(name="Guilds", value=len(self.bot.guilds))
         e.add_field(name="Commands Used", value=self.bot.commands_used)

@@ -12,10 +12,23 @@ class Moderation(commands.Cog):
         return e
 
 
+    @commands.command(aliases=["hban"])
+    @commands.guild_only()
+    @commands.has_permissions(ban_members=True)
+    async def hackban(self, ctx, user: discord.User, *, reason=None):
+        """Bans a user that isn't in the server""" 
+        await ctx.guild.ban(discord.Object(id=user.id), reason=reason, delete_message_days=7)
+        e = self.__create_thumbnail_embed(title=":hammer: | User Banned",
+                                    description=f"Banned: {user}\nBy: {ctx.author.mention}\nReason: {reason}",
+                                    color=discord.Color.red(),
+                                    thumbnail=user.avatar_url_as(format="png"))
+        await ctx.send(embed=e)
+
+
     @commands.command()
     @commands.guild_only()
     @commands.has_permissions(ban_members=True)
-    async def ban(self, ctx, user: discord.Member, *, reason=None, delete_message_days=7):
+    async def ban(self, ctx, user: discord.Member, *, reason=None):
         """Bans a user from the server"""        
         e = discord.Embed(title=":hammer: | You have been banned",
                         description=f"By: {ctx.author.mention}\nWith reason: {reason}",
@@ -47,9 +60,7 @@ class Moderation(commands.Cog):
                                     thumbnail=user.avatar_url_as(format="png"))
         await ctx.send(embed=e)
 
-        
 
-        
     @commands.command()
     @commands.guild_only()
     @commands.has_permissions(ban_members=True)
@@ -70,7 +81,7 @@ class Moderation(commands.Cog):
 
 
 
-    @commands.command()
+    @commands.command(aliases=["purge"])
     @commands.guild_only()
     @commands.has_permissions(manage_messages=True)
     async def prune(self, ctx, amount: int, user: discord.Member = None):
@@ -88,7 +99,7 @@ class Moderation(commands.Cog):
         await ctx.send(embed=e, delete_after=10)
 
 
-    @commands.command()
+    @commands.command(aliases=["ra"])
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     async def roleadd(self, ctx, user:discord.Member, *, rolename):
@@ -108,7 +119,7 @@ class Moderation(commands.Cog):
         await ctx.send(embed=e)
 
     
-    @commands.command()
+    @commands.command(aliases=["rr"])
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     async def roleremove(self, ctx, user:discord.Member, *, rolename):

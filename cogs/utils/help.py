@@ -2,7 +2,7 @@ import discord
 import itertools
 from discord.ext import commands
 
-class MyOwnHelp(commands.MinimalHelpCommand):
+class BotHelp(commands.MinimalHelpCommand):
 
     def get_opening_note(self):
         return "Down below listed all commands I know.\n" \

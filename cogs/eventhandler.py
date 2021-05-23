@@ -23,54 +23,27 @@ class EventHandler(commands.Cog):
             await asyncio.sleep(60)
 
     
-    async def __check_existing_user(self, user, guild = None):
-        if guild == None:
-            predicate = "uID"
-            table = "levelsGlobal"
-            field = f"uID = {user.id}"
-        else:
-            predicate = "uID"
-            table = "levelsGuilds"
-            field = f"uID = {user.id} AND gID = {guild.id}"
+    async def __check_existing_user(self, user, guild):
+        predicate = "uID"
+        table = "levels"
+        field = f"uID = {user.id} AND gID = {guild.id}"
 
         try:
             await db.get(predicate, table, field)
             return True
         except:
             return False
-
-
-    async def __give_role_rewards(self, user, guild):
-        if not await self.__check_existing_user(user, guild):
-            return
-
-        level = await db.get("level", "levelsGuilds", f"uID = {user.id} AND gID = {guild.id}")
-        reward = await db.getmany("rID", "levelsRewards", f"gID = {guild.id} AND level <= {level}")
-
-        if len(reward) != 0:
-            for roleID in reward:
-                role = discord.utils.get(guild.roles, name = "Sectarian")
-
-                if role in user.roles:
-                    return
-
-                await user.add_roles(role)
                 
 
-    async def __leveling_handler(self, user, guild = None):
-        if guild == None:
-            table = "levelsGlobal(uID, level, exp, nextLvlExp, reputation, description, repTimeout)"
-            params = f'{user.id}, 1, 0, 36, 0, NULL, datetime("2000-01-01 00:00:00")'
-            fmt_table = "levelsGlobal"
-            fmt_field = f"uID = {user.id}"
-        else:
-            table = "levelsGuilds(uID, gID, level, exp, nextLvlExp)"
-            params = f"{user.id}, {guild.id}, 1, 0, 36"
-            fmt_table = "levelsGuilds"
-            fmt_field = f"uID = {user.id} AND gID = {guild.id}"
+    async def __leveling_handler(self, user, guild):
+        table = "levels(uID, gID, level, exp, nextLvlExp)"
+        params = f"{user.id}, {guild.id}, 1, 0, 36"
+        fmt_table = "levels"
+        fmt_field = f"uID = {user.id} AND gID = {guild.id}"
 
         if not await self.__check_existing_user(user, guild):
             await db.insert(table, params)
+            await db.insert("global(uID, reputation, description, repTimeout)", f'{user.id}, 0, NULL, datetime("now", "localtime")')
         if user.id in self.lvl_cooldown:
             return
         
@@ -80,8 +53,8 @@ class EventHandler(commands.Cog):
 
         exp = randint(1, 10)
         await db.update(fmt_table, f"exp = exp + {exp}", fmt_field)
-        if guild:
-            self.lvl_cooldown.append(user.id)
+        
+        self.lvl_cooldown.append(user.id)
 
         if (prev_exp + exp) > next_level:
             await db.update(fmt_table, "level = level + 1", fmt_field)
@@ -89,13 +62,10 @@ class EventHandler(commands.Cog):
             new_next_lvl = round(((next_level * 0.4 + next_level) / (prev_lvl + 1)) + next_level)
             await db.update(fmt_table, f"nextLvlExp = {new_next_lvl}", fmt_field)
 
-            if guild == None:
-                e = discord.Embed(description=f":tada: | **Congratulations, {user.mention}! You have reached __{prev_lvl + 1} level__!**", color=self.bot.color)
-                return e
+            e = discord.Embed(description=f":tada: | **Congratulations, {user.mention}! You have reached __{prev_lvl + 1} level__!**", color=self.bot.color)
+            return e
 
-            #await self.__give_role_rewards(user, guild)
-                
-
+            
     @Cog.listener()
     async def on_ready(self):
         if os.path.isfile("data/umi.db") == False:
@@ -111,6 +81,8 @@ class EventHandler(commands.Cog):
         print(f"Mode: {'DEV' if self.bot.debug_mode else 'Stable'}")
         print("-----------------------------")
 
+        await self.bot.change_presence(activity=discord.Game(name="in the ocean (u!help)"))
+
 
     @Cog.listener()
     async def on_command(self, ctx):
@@ -122,8 +94,7 @@ class EventHandler(commands.Cog):
         if message.author.bot:
             return
 
-        e = await self.__leveling_handler(message.author)
-        await self.__leveling_handler(message.author, message.guild)
+        e = await self.__leveling_handler(message.author, message.guild)
         
         try:
             await message.channel.send(embed = e)

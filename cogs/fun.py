@@ -1,9 +1,5 @@
-import asyncio
-import json
 import random
-import os
 
-import aiohttp
 import discord
 from discord.ext import commands
 from discord.ext.commands import BucketType

@@ -1,14 +1,8 @@
 import ast
-import datetime
-import os
-import sqlite3
-import sys
 import traceback
 
 import discord
 from discord.ext import commands
-
-from cogs.utils import database as db
 
 
 class Owner(commands.Cog):
@@ -48,94 +42,34 @@ class Owner(commands.Cog):
     @commands.command(hidden=True)
     @commands.is_owner()
     async def load(self, ctx, cog: str):
-        if cog in self.bot.loaded_cogs:
-            e = await self.__create_embed("Error!", f"```cogs.{cog} is already loaded!```", discord.Color.red(), ":warning:")
+        try:
+            self.bot.load_extension("cogs." + cog)
+            e = await self.__create_embed("Next cog was loaded", f"```{cog}```", discord.Color.green(), ":white_check_mark:")
             await ctx.send(embed=e)
-        else:
-            try:
-                self.bot.load_extension("cogs." + cog)
-                self.bot.loaded_cogs.append(cog)
-                e = await self.__create_embed("Next cog was loaded", f"```{cog}```", discord.Color.green(), ":white_check_mark:")
-                await ctx.send(embed=e)
-            except:
-                await ctx.send(f"`Error!` ```{traceback.format_exc()}```")  
+        except Exception:
+            await ctx.send(f"`Error!` ```{traceback.format_exc()}```")  
 
 
     @commands.command(hidden=True)
     @commands.is_owner()
     async def unload(self, ctx, cog):
-        if cog not in self.bot.loaded_cogs:
-            e = await self.__create_embed("Error!", f"```cogs.{cog} is already unloaded!```", discord.Color.red(), ":warning:")
+        try:
+            self.bot.unload_extension("cogs." + cog)
+            e = await self.__create_embed("Next cog was unloaded", f"```{cog}```", discord.Color.red(), ":no_entry:")
             await ctx.send(embed=e)
-        else:
-            try:
-                self.bot.unload_extension("cogs." + cog)
-                self.bot.loaded_cogs.remove(cog)
-                e = await self.__create_embed("Next cog was unloaded", f"```{cog}```", discord.Color.red(), ":no_entry:")
-                await ctx.send(embed=e)
-            except:
-                await ctx.send(f"`Error!` ```{traceback.format_exc()}```")
+        except Exception:
+            await ctx.send(f"`Error!` ```{traceback.format_exc()}```")
 
 
     @commands.command(hidden=True)
     @commands.is_owner()
     async def reload(self, ctx, cog):
-        self.bot.loaded_cogs.remove(cog)
-
         try:
             self.bot.reload_extension("cogs." + cog)
-            self.bot.loaded_cogs.append(cog)
             e = await self.__create_embed("Next cog was reloaded", f"```{cog}```", discord.Color.orange(), ":repeat:")
             await ctx.send(embed=e)
-        except:
-            self.bot.loaded_cogs.remove(cog)
+        except Exception:
             return await ctx.send(f"`Error!` ```{traceback.format_exc()}```")
-
-        
-    @commands.group(hidden=True, aliases=["bl"])
-    @commands.is_owner()
-    async def blacklist(self, ctx):
-        if not ctx.invoked_subcommand:
-            e = discord.Embed(description="`add` `remove` `temp(WIP)`")
-            await ctx.send(embed=e)
-
-
-    @blacklist.command()
-    async def add(self, ctx, bid, *, reason: str = None):
-        try:
-            await db.get("id", "blacklist", "id", bid)
-        except:
-            await db.database.execute(f"INSERT INTO blacklist VALUES (?, ?, ?, ?)", (bid, reason, 0, None))#had to use it this way to escape errors
-            await db.database.commit() #FIXME
-
-            e = discord.Embed(title = ":no_pedestrians: | User/Guild blacklisted",
-                            description = f"ID: {bid}\nReason: {reason}", color = discord.Color.red())
-            await ctx.send(embed = e)
-            return await self.__send_to_log_channel(":warning: | User/Guild blacklisted", f"ID: {bid}\nReason: {reason}", discord.Color.red())
-        else:
-            e = discord.Embed(title=":warning: | Blacklist", description="This ID already exists...", color=discord.Color.red())
-            return await ctx.send(embed=e)
-
-    
-    @blacklist.command()
-    async def remove(self, ctx, bid):
-        try:
-            await db.get("id", "blacklist", "id", bid)
-        except:
-            e = discord.Embed(title=":warning: | Blacklist", description=f"ID({bid}) not found...", color=discord.Color.red())
-            return await ctx.send(embed=e)
-        else:
-            await db.delete("blacklist", f"id = {bid}")
-
-            e = discord.Embed(title = ":no_pedestrians: | User/Guild removed from the blacklist",
-                            description = f"ID: {bid}", color = self.bot.color)
-            await ctx.send(embed = e)
-            return await self.__send_to_log_channel(":warning: | User/Guild removed from the blacklist", f"ID: {bid}", self.bot.color)
-
-
-    @blacklist.command()
-    async def temp(self, ctx, id, time: int, *, reason: str):
-        pass
 
 
     @commands.command(hidden=True)
