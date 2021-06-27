@@ -1,6 +1,6 @@
 import aiosqlite
 
-path = "Umi/data/umi.db"
+path = "data/umi.db"
 
 # TODO: Move from sqlite to Postgresql
 
