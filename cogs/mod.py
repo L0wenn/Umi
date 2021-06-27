@@ -81,7 +81,7 @@ class Moderation(commands.Cog):
 
 
 
-    @commands.command(aliases=["purge"])
+    @commands.command(aliases=["purge", "clean"])
     @commands.guild_only()
     @commands.has_permissions(manage_messages=True)
     async def prune(self, ctx, amount: int, user: discord.Member = None):
@@ -180,7 +180,7 @@ class Moderation(commands.Cog):
             await ctx.send(embed = e)
         else:
             if role not in user.roles:
-                e = discord.Embed(title=":mute: | Mute", description="This user doesn't have mute role already", color=discord.Color.orange())
+                e = discord.Embed(title=":mute: | Mute", description="This user is not muted", color=discord.Color.orange())
                 return await ctx.send(embed=e)
 
             await user.remove_roles(role)
@@ -188,6 +188,9 @@ class Moderation(commands.Cog):
                             description=f"Unmuted: {user.mention}\nBy: {ctx.author.mention}", 
                             color=discord.Color.green())
             await ctx.send(embed=e)
+
+
+    
 
 
 def setup(bot):

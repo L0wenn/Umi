@@ -54,12 +54,15 @@ class BotHelp(commands.MinimalHelpCommand):
             for command in filtered:
                 cog_help += self.add_subcommand_formatting(command)
 
-
         destination = self.get_destination()
         await destination.send(f"```apache\n[{cog.qualified_name} Commands]\n\n{cog_help}```")
 
     async def send_command_help(self, command):
         signature = self.get_command_signature(command)
-        e = discord.Embed(title=f":abcd: | Help: {signature}", description=f"{command.help}", color=0x78DBE2)
+        fmt_aliases = "`" + "`\u2002`".join(command.aliases) + "`"
+
+        e = discord.Embed(title=f":abcd: | Help: {signature}", description=f"{command.help}\n\n"\
+        f"Aliases: {fmt_aliases}", color=0x78DBE2)
         e.set_footer(text="<> - Nessesary, [] - Optional")
+
         await self.send_embed(e)

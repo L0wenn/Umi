@@ -1,7 +1,5 @@
 {
     "token" :   "Your token here",
-    "prefixes"  :   ["u!", "u?"],
-    "debugMode"    :   false,
-    "loadOnDebugOnly"   :   ["owner", "errorhandler", "eventhandler"],
-    "tenorAPI"  :   "Your TenorAPI key here"
+    "prefixes"  :   ["m!", "m?"],
+    "debugMode"    :   false
 }

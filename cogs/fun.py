@@ -1,6 +1,7 @@
 import random
 
 import discord
+import nekos
 from discord.ext import commands
 from discord.ext.commands import BucketType
 
@@ -239,6 +240,7 @@ class Fun(commands.Cog):
     @commands.guild_only()
     @commands.cooldown(1, 5, type=BucketType.user)
     async def changemymind(self, ctx, *, text: str):
+        """Do it. You won't"""
         await ctx.trigger_typing()
         res = await helpers.get_json(f"https://nekobot.xyz/api/imagegen?type=changemymind&text={text}")
         await ctx.send(embed=self.__nekobot_embed(res))
@@ -270,7 +272,7 @@ class Fun(commands.Cog):
         meme = post["data"]
 
         e = discord.Embed(color=0xFF4500)
-        e.set_author(name=f"{meme['title']}", url=f"https://www.reddit.com{meme['permalink']}", icon_url="https://shorturl.at/fmyAN")
+        e.set_author(name=f"{meme['title']}", url=f"https://www.reddit.com{meme['permalink']}")
         e.set_image(url=meme["url"])
 
         await ctx.send(embed=e)
@@ -278,12 +280,12 @@ class Fun(commands.Cog):
     
     @commands.command(aliases=["coin"])
     @commands.guild_only()
-    @commands.cooldown(1, 6, type=BucketType.user)
+    @commands.cooldown(1, 3, type=BucketType.user)
     async def flipcoin(self, ctx):
         """Flips a coin for you!"""
         coin = random.randint(0, 1)
         e = discord.Embed(title="TAILS!!" if coin == 0 else "HEADS!!", color=self.bot.color)
-        e.set_image(url="https://bit.ly/301382B" if coin == 0 else "https://bit.ly/31BR1ct")
+        e.set_image(url="https://bit.ly/301382B" if coin == 0 else "https://bit.ly/31BR1ct") # TODO: Change the images into something "general(?)"
         await ctx.send(embed=e)
 
 
@@ -292,9 +294,9 @@ class Fun(commands.Cog):
     @commands.cooldown(1, 6, type=BucketType.user)
     async def eightball(self, ctx):
         """Ask a question to the ball and it'll show you the answer"""
-        res = await helpers.get_json("https://nekos.life/api/v2/8ball")
-        e = discord.Embed(title=res["response"], color=0x000000)
-        e.set_image(url=res["url"])
+        ball = nekos.eightball()
+        e = discord.Embed(title = ball.__getattr__("text"), color = 0x000000)
+        e.set_image(url = ball.__getattr__("image"))
         await ctx.send(embed=e)
 
 
@@ -304,19 +306,17 @@ class Fun(commands.Cog):
     async def fact(self, ctx):
         """Sends you a random fact"""
         await ctx.trigger_typing()
-        res = await helpers.get_json("https://nekos.life/api/v2/fact")
-        e = discord.Embed(title=":bookmark: | Random Fact!", description=res["fact"], color=self.bot.color)
+        e = discord.Embed(title=":bookmark: | Random Fact!", description=nekos.fact(), color=self.bot.color)
         await ctx.send(embed=e)
 
     
     @commands.command(aliases=["owo", "weebify"])
     @commands.guild_only()
     @commands.cooldown(1, 10, type=BucketType.user)
-    async def owoify(self, ctx, *, text):
+    async def owoify(self, ctx, *, text: str):
         """OWOifies your text. Cuuuuute"""
         await ctx.message.delete()
-        res = await helpers.get_json(f"https://nekos.life/api/v2/owoify?text={text}")
-        e = discord.Embed(title="OwO", description=res["owo"], color=self.bot.color)
+        e = discord.Embed(title="OwO", description=nekos.owoify(text), color=self.bot.color)
         await ctx.send(embed=e)
 
 

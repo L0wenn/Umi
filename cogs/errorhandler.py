@@ -33,7 +33,7 @@ class ErrorHander(commands.Cog):
                 pass
 
         elif isinstance(error, commands.CommandOnCooldown):
-            e = discord.Embed(title=f":clock1: | Chill! You can use the command again after {round(error.retry_after)}s", color=discord.Color.orange())
+            e = discord.Embed(title=f":clock1: | Oh? No, you can use the command again after {round(error.retry_after)}s", color=discord.Color.orange())
             return await ctx.send(embed=e)
 
         elif isinstance(error, commands.BotMissingPermissions):
@@ -43,7 +43,11 @@ class ErrorHander(commands.Cog):
             else:
                 fmt = f" and ".join(missing)
 
-            e = await self.__build_error_embed(":x: | Bot Missing Permissions", f"I am missing some permissions to run this command: ```{fmt}```")
+            e = await self.__build_error_embed(discord.Embed.Empty, f":x: | I am missing some permissions to run this command: ```{fmt}```")
+            return await ctx.send(embed=e)
+
+        elif isinstance(error, commands.NSFWChannelRequired):
+            e = await self.__build_error_embed(":x: | This command can be used only in NSFW channels")
             return await ctx.send(embed=e)
 
         elif isinstance(error, commands.DisabledCommand):
@@ -60,7 +64,7 @@ class ErrorHander(commands.Cog):
             else:
                 fmt = f" and ".join(missing)
 
-            e = await self.__build_error_embed(":x: | Bot Missing Permissions", f"You need permissions to run this command: ```{fmt}```")
+            e = await self.__build_error_embed(discord.Embed.Empty, f":x: | You need permissions to run this command: ```{fmt}```")
             return await ctx.send(embed=e)
 
         elif isinstance(error, commands.CheckFailure):

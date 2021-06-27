@@ -1,0 +1,4 @@
+cogs/test.py
+cogs/__pycache__/
+cogs/utils/__pycache__/
+data

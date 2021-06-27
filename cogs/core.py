@@ -45,8 +45,7 @@ class Core(commands.Cog):
     @commands.cooldown(1, 5, type=BucketType.user)
     async def invite(self, ctx):
         """Gives bot's invite link"""
-        e = discord.Embed(title=":incoming_envelope: | Invite the bot!", description="[Invite with Full permissions](https://bit.ly/2H4OyiP) (recomended)\n" \
-                                                                                    "[Invite with Customizable permissions](https://bit.ly/2Z8GbZQ)", 
+        e = discord.Embed(title=":incoming_envelope: | Invite the bot!", description="[Invite Mint](https://discord.com/oauth2/authorize?client_id=424862035063603202&scope=bot&permissions=2146958839)",
         color=self.bot.color)
         await ctx.send(embed=e)
 
@@ -55,11 +54,9 @@ class Core(commands.Cog):
     @commands.cooldown(1, 12, type=BucketType.user)  
     async def about(self, ctx):
         """Shows the main info about the bot"""
-        e = discord.Embed(title=f":blue_book: | About", description="Hello! I am Umi! A bot made for uni project", color=self.bot.color)
-        e.add_field(name="Running On", value=f"Python {sys.version[:5]}")
-        e.add_field(name="System", value=f"{platform.system()} {platform.release()}")
-        e.add_field(name="Main Lib", value=f"discord.py {discord.__version__}")
-        e.add_field(name="Owner", value="<@266589228077416459>")
+        e = discord.Embed(title=f"Mint", color=self.bot.color)
+        e.add_field(name="Library", value=f"discord.py {discord.__version__}")
+        e.add_field(name="Developer", value="mili_#1208")
         e.add_field(name="Guilds", value=len(self.bot.guilds))
         e.add_field(name="Commands Used", value=self.bot.commands_used)
         e.add_field(name="Uptime", value=self.__get_uptime())

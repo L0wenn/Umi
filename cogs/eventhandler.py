@@ -62,8 +62,9 @@ class EventHandler(commands.Cog):
             new_next_lvl = round(((next_level * 0.4 + next_level) / (prev_lvl + 1)) + next_level)
             await db.update(fmt_table, f"nextLvlExp = {new_next_lvl}", fmt_field)
 
-            e = discord.Embed(description=f":tada: | **Congratulations, {user.mention}! You have reached __{prev_lvl + 1} level__!**", color=self.bot.color)
-            return e
+            # TODO: Move to another better hosting goddamn you
+            #e = discord.Embed(description=f":tada: | **Congratulations, {user.mention}! You have reached __{prev_lvl + 1} level__!**", color=self.bot.color)
+            return
 
             
     @Cog.listener()

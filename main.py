@@ -14,10 +14,10 @@ def get_prefix(bot, message):
 
 bot = commands.Bot(command_prefix=get_prefix)
 
-with open("data/config.json") as f:
+with open("Umi/data/config.json") as f:
     bot.config = json.load(f)
     
-bot.color = 0x78DBE2
+bot.color = 0x98ff98
 bot.launch_time = datetime.datetime.utcnow()
 bot.commands_used = 0
 bot.debug_mode = bot.config["debugMode"]
