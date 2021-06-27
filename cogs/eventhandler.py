@@ -82,7 +82,7 @@ class EventHandler(commands.Cog):
         print(f"Mode: {'DEV' if self.bot.debug_mode else 'Stable'}")
         print("-----------------------------")
 
-        await self.bot.change_presence(activity=discord.Game(name="in the ocean (u!help)"))
+        await self.bot.change_presence(activity=discord.Game(name="in the library (m!help)"))
 
 
     @Cog.listener()
