@@ -1,5 +1,4 @@
 {
     "token" :   "Your token here",
-    "prefixes"  :   ["m!", "m?"],
     "debugMode"    :   false
 }

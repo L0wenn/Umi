@@ -3,15 +3,23 @@ import json
 import logging
 import os
 import traceback
+from cogs.utils import database as db
 
 from discord.ext import commands
 
 
-def get_prefix(bot, message):
-    prefixes = bot.config["prefixes"]
+async def get_prefix(bot, message):
+    guild = message.guild
+    base = []
 
-    return commands.when_mentioned_or(*prefixes)(bot, message)
-
+    if not await db.check_existence("prefix", "settings", f"gID = {guild.id}"):
+        base.append("m!")
+    else:
+        custom = await db.get("prefix", "settings", f"gID = {guild.id}")
+        base.append(custom)
+    
+    return commands.when_mentioned_or(*base)(bot, message)
+    
 bot = commands.Bot(command_prefix=get_prefix)
 
 with open("data/config.json") as f:

@@ -4,26 +4,21 @@ path = "data/umi.db"
 
 # TODO: Move from sqlite to Postgresql
 
-async def create_database():
+async def create_table(name: str, rows: str):
     async with aiosqlite.connect(path) as db:
-        await db.execute('''CREATE TABLE IF NOT EXISTS "global"(
-        "uID"	INTEGER,
-        "reputation"	INTEGER,
-        "description"	INTEGER,
-        "repTimeout"	TEXT)''')
+        await db.execute(f'''CREATE TABLE IF NOT EXISTS "{name}"({rows})''')
 
-        await db.execute('''CREATE TABLE IF NOT EXISTS "levels"(
-        "uID"	INTEGER,
-        "gID"   INTEGER,
-        "level"	INTEGER,
-        "exp"	INTEGER,
-        "nextLvlExp"	INTEGER)''')
+
+async def create_database_base():
+    await create_table("global", 'uID INTEGER, reputation INTEGER, description INTEGER, repTimeout TEXT, UNIQUE(uID)')
+    await create_table("levels", 'uID INTEGER, gID INTEGER, level INTEGER, exp INTEGER, nextLvlExp INTEGER')
+    await create_table("settings", "gID INTEGER, prefix TEXT, UNIQUE(gID)")
 
 
 async def insert(table, values):
     """Creates a new item in database"""
     async with aiosqlite.connect(path) as db:
-        await db.execute(f"INSERT INTO {table} VALUES ({values})")
+        await db.execute(f"INSERT OR IGNORE INTO {table} VALUES ({values})")
         await db.commit()
     
 
@@ -33,7 +28,10 @@ async def get(item, table, field):
         cursor = await db.execute(f"SELECT {item} FROM {table} WHERE {field}")
         row = await cursor.fetchone()
 
-    return row[0]
+    try:
+        return row[0]
+    except TypeError:
+        return None
 
 
 async def getmany(item, table, field = None):
@@ -47,7 +45,7 @@ async def getmany(item, table, field = None):
         cursor = await db.execute(fmt)
         rows = await cursor.fetchall()
 
-    return rows
+    return rows if len(rows) != 0 else None
 
 
 async def update(table, item, field):
@@ -62,4 +60,10 @@ async def delete(table, item):
     async with aiosqlite.connect(path) as db:
         await db.execute(f"DELETE FROM {table} WHERE {item}")
         await db.commit()
+
+
+async def check_existence(item, table, field):
+    if await get(item, table, field):
+        return True
+    return False
     

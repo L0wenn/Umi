@@ -1,6 +1,7 @@
 import asyncio
 import discord
 from discord.ext import commands
+from cogs.utils import database as db
 
 class Moderation(commands.Cog):
     def __init__(self, bot):
@@ -189,9 +190,20 @@ class Moderation(commands.Cog):
                             color=discord.Color.green())
             await ctx.send(embed=e)
 
+    # Placing this function temporarily here
+    @commands.command()
+    @commands.guild_only()
+    @commands.has_permissions(administrator = True)
+    async def prefix(self, ctx, *, prefix: str = None):
+        await db.insert("settings", f"{ctx.guild.id}, NULL")
 
-    
+        if not prefix:
+            await db.update("settings", "prefix = NULL", f"gID = {ctx.guild.id}")
+            return await ctx.send(embed = discord.Embed(description = "Server prefix was reset", color = self.bot.color))
 
+        await db.update("settings", f'prefix = "{prefix}"', f"gID = {ctx.guild.id}")
+        await ctx.send(embed = discord.Embed(description = f"New server prefix now is: {prefix}", color = self.bot.color))
+             
 
 def setup(bot):
     bot.add_cog(Moderation(bot))

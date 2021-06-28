@@ -1,6 +1,7 @@
 import asyncio
 import os.path
 import sys
+import traceback
 from random import randint
 
 import discord
@@ -22,28 +23,16 @@ class EventHandler(commands.Cog):
             self.lvl_cooldown.clear()
             await asyncio.sleep(60)
 
-    
-    async def __check_existing_user(self, user, guild):
-        predicate = "uID"
-        table = "levels"
-        field = f"uID = {user.id} AND gID = {guild.id}"
-
-        try:
-            await db.get(predicate, table, field)
-            return True
-        except:
-            return False
-                
 
     async def __leveling_handler(self, user, guild):
-        table = "levels(uID, gID, level, exp, nextLvlExp)"
-        params = f"{user.id}, {guild.id}, 1, 0, 36"
         fmt_table = "levels"
         fmt_field = f"uID = {user.id} AND gID = {guild.id}"
 
-        if not await self.__check_existing_user(user, guild):
-            await db.insert(table, params)
-            await db.insert("global(uID, reputation, description, repTimeout)", f'{user.id}, 0, NULL, datetime("now", "localtime")')
+        if not await db.check_existence("uID", fmt_table, fmt_field):
+            await db.insert("levels(uID, gID, level, exp, nextLvlExp)", f"{user.id}, {guild.id}, 1, 0, 36")
+
+        await db.insert("global(uID, reputation, description, repTimeout)", f'{user.id}, 0, NULL, datetime("now", "localtime")')
+
         if user.id in self.lvl_cooldown:
             return
         
@@ -51,16 +40,18 @@ class EventHandler(commands.Cog):
         prev_exp = await db.get("exp", fmt_table, fmt_field)
         next_level = await db.get("nextLvlExp", fmt_table, fmt_field)
 
-        exp = randint(1, 10)
+        exp = randint(1, 5)
         await db.update(fmt_table, f"exp = exp + {exp}", fmt_field)
         
         self.lvl_cooldown.append(user.id)
 
         if (prev_exp + exp) > next_level:
             await db.update(fmt_table, "level = level + 1", fmt_field)
+            leftover = (prev_exp + exp) - next_level
 
             new_next_lvl = round(((next_level * 0.4 + next_level) / (prev_lvl + 1)) + next_level)
             await db.update(fmt_table, f"nextLvlExp = {new_next_lvl}", fmt_field)
+            await db.update(fmt_table, f"exp = {leftover}", fmt_table)
 
             # TODO: Move to another better hosting goddamn you
             #e = discord.Embed(description=f":tada: | **Congratulations, {user.mention}! You have reached __{prev_lvl + 1} level__!**", color=self.bot.color)
@@ -71,9 +62,9 @@ class EventHandler(commands.Cog):
     async def on_ready(self):
         if os.path.isfile("data/umi.db") == False:
             try:
-                await db.create_database()
-            except Exception as e:
-                sys.exit(f"An error was ecountered while trying to create a database: {e}.\nThe bot will not run without database")
+                await db.create_database_base()
+            except Exception:
+                sys.exit(f"An error was ecountered while trying to create a database: {traceback.print_exc()}.\nThe bot will not run without database")
 
         print("Bot online and ready to work!")
         print("-----------------------------")
@@ -82,7 +73,7 @@ class EventHandler(commands.Cog):
         print(f"Mode: {'DEV' if self.bot.debug_mode else 'Stable'}")
         print("-----------------------------")
 
-        await self.bot.change_presence(activity=discord.Game(name="in the library (m!help)"))
+        await self.bot.change_presence(activity=discord.Game(name="Searching for the library (m!help)"))
 
 
     @Cog.listener()
