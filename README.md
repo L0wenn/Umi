@@ -1,2 +1,2 @@
-# Umi
-Umi is a Discord bot made for uni project
+# Mint
+Mint is a Discord bot made for uni project
