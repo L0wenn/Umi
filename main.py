@@ -28,7 +28,7 @@ with open("data/config.json") as f:
 bot.color = 0x98ff98
 bot.launch_time = datetime.datetime.utcnow()
 bot.commands_used = 0
-bot.debug_mode = bot.config["debugMode"]
+bot.debug_mode = False
 
 #setting up logging
 logger = logging.getLogger("discord")
