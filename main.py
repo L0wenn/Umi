@@ -120,7 +120,7 @@ if __name__ == "__main__":
         bot.load_extension("cogs.errorhandler")
         bot.load_extension("cogs.eventhandler")
     else:
-        for cog in os.listdir("Mint/cogs"):
+        for cog in os.listdir("cogs"):
             try:
                 if cog.endswith(".py"):
                     bot.load_extension("cogs." + cog.replace(".py", ""))
