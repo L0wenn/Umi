@@ -7,7 +7,7 @@ Mint is a Discord bot made out of pure curiosity about programming around 2-3 ye
 * Anime pictures and gifs (seriosly, try `neko` it's posts very cute nekos)
 * Gelbooru
 * Commands to spice up the server with memes
-* And other stuff I'm lazy to list myself, so you better to [invite the bot](https://discord.com/oauth2/authorize?client_id=424862035063603202&scope=bot&permissions=2146958839) and see it for yourself yourself!
+* And other stuff I'm lazy to list myself, so you better to [invite the bot](https://discord.com/oauth2/authorize?client_id=424862035063603202&scope=bot&permissions=2146958839) and see it for yourself!
 
 ## Todo List for now:
 
