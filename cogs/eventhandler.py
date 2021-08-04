@@ -203,7 +203,9 @@ class EventHandler(commands.Cog):
             "logChannel"    :   None,
             "muteRoleID"    :   None,
             "welcomeChannel":   None,
-            "welcomeMessage":   "Welcome to ?g, Dr. ?n"
+            "welcomeMessage":   "Welcome to ?g, Dr. ?n",
+            "warnAction"    :   False,
+            "warnLimit"     :   3
         }
         self.db.settings.insert_one(guild_settings)
 
