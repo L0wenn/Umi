@@ -11,10 +11,10 @@ Mint is a Discord bot made out of pure curiosity about programming around 2-3 ye
 
 ## Todo List for now:
 
-- [ ] Rewrite database.py and modules that use it
+- [x] Rewrite database.py and modules that use it (Moved to MongoDB)
 - [ ] Get a better hosting (Heroku sucks tbh)
-- [ ] Add more features to social.py
-- [ ] Make event handling process better
+- [x] Add more features to social.py
+- [x] Make event handling process better
 - [ ] Make leveling related graphics(?)
 - [ ] Refactor the code (ugh)
 

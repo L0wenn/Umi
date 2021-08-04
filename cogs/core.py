@@ -1,5 +1,3 @@
-import platform
-import sys
 import time
 from datetime import datetime
 
@@ -60,6 +58,7 @@ class Core(commands.Cog):
         e.add_field(name="Guilds", value=len(self.bot.guilds))
         e.add_field(name="Commands Used", value=self.bot.commands_used)
         e.add_field(name="Uptime", value=self.__get_uptime())
+        e.add_field(name="Source Code", value="[GitHub](https://github.com/mili-ae/Mint)")
         e.set_thumbnail(url=self.bot.user.avatar_url_as(format="png"))
         await ctx.send(embed=e)
 

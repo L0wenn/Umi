@@ -30,7 +30,7 @@ class BotHelp(commands.MinimalHelpCommand):
         ctx = self.context
         bot = ctx.bot
 
-        e = discord.Embed(title=":abcd: | Help", description=self.get_opening_note(), color=0x78DBE2)
+        e = discord.Embed(title=":abcd: | Help", description=self.get_opening_note(), color=0x98ff98)
         e.set_thumbnail(url=bot.user.avatar_url_as(format="png"))
         e.set_footer(text=self.get_ending_note())
 
@@ -62,7 +62,7 @@ class BotHelp(commands.MinimalHelpCommand):
         fmt_aliases = "`" + "`\u2002`".join(command.aliases) + "`"
 
         e = discord.Embed(title=f":abcd: | Help: {signature}", description=f"{command.help}\n\n"\
-        f"Aliases: {fmt_aliases}", color=0x78DBE2)
+        f"Aliases: {fmt_aliases}", color=0x98ff98)
         e.set_footer(text="<> - Nessesary, [] - Optional")
 
         await self.send_embed(e)
