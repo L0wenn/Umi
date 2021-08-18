@@ -6,7 +6,7 @@ from cogs.utils.helpers import get_json
 from random import choice
 
 
-GELBOORU_URL = "https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&limit=1000&tags={}"
+GELBOORU_URL = "https://middle-gelbooru.herokuapp.com/gelbooru?q={}"
 
 async def get_image(tags):
     url = GELBOORU_URL.format(tags)
