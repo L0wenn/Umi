@@ -39,6 +39,7 @@ class NSFW(commands.Cog):
             post = choice(posts)
             image = post["file_url"]
             await ctx.send(image)
+            await asyncio.sleep(5) # sleeping to avoid ratelimit
             
 
 
