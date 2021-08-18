@@ -8,14 +8,14 @@ from random import choice
 
 GELBOORU_URL = "https://middle-gelbooru.herokuapp.com/gelbooru?q={}"
 
-async def get_image(tags):
+async def get_posts(tags):
     url = GELBOORU_URL.format(tags)
     search = await get_json(url)
 
-    post = choice(search)
-    image = post["file_url"]
+    # post = choice(search)
+    # image = post["file_url"]
 
-    return image
+    return search
 
 
 class NSFW(commands.Cog):
@@ -30,13 +30,16 @@ class NSFW(commands.Cog):
         """Returns an image(s) from Gelbooru. NSFW channels only.
         Example of multiple tags: `m!gelbooru mint_(arknights)+solo+rating:safe 10`
         """
-        try:
-            for i in range(amount):
-                image = await get_image(tags)
-                await ctx.send(image)
-        except ValueError:
-            await ctx.send(embed = discord.Embed(description=f"I couldn't find any images with tag(s) `{tags}`",
+        posts = await get_posts(tags)
+        if not posts:
+            return await ctx.send(embed = discord.Embed(description=f"I couldn't find any images with tag(s) `{tags}`",
             color=discord.Color.red()))
+
+        for i in range(amount):
+            post = choice(posts)
+            image = post["file_url"]
+            await ctx.send(image)
+            
 
 
     @commands.command()
