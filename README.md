@@ -9,6 +9,12 @@ Mint is a Discord bot made out of pure curiosity about programming around 2-3 ye
 * Commands to spice up the server with memes
 * And other stuff I'm lazy to list myself, so you better to [invite the bot](https://discord.com/oauth2/authorize?client_id=424862035063603202&scope=bot&permissions=2146958839) and see it for yourself!
 
+## If you want to self host:
+* Create python virtual environment (optional)
+* Install requirements by using `pip3 install -r requirements.txt`
+* Create `.env` file in bot's directory and put your bot's token(TOKEN) and Atlas MongoDB database url(MONGODB_URI) in it
+* Run bot by `python main.py`
+
 ## Todo List for now:
 
 - [x] Rewrite database.py and modules that use it (Moved to MongoDB)
