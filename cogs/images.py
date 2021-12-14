@@ -53,7 +53,7 @@ class Images(commands.Cog):
     @commands.cooldown(1, 10, type=BucketType.user)
     async def kiss(self, ctx, user: discord.Member = None):
         if user == None or user == ctx.author:
-            text = f"Looks like {ctx.author.mention} is kissing yourself :open_mouth:"
+            text = f"Looks like {ctx.author.mention} is kissing themself :open_mouth:"
         else:
             text = f"{ctx.author.mention} is kissing {user.mention}!"
 
@@ -110,10 +110,10 @@ class Images(commands.Cog):
         await ctx.send(embed = e)
 
 
-    @commands.command(aliases = ["ap"])
+    @commands.command()
     @commands.guild_only()
     @commands.cooldown(1, 5, type=BucketType.user)
-    async def avatar_pic(self, ctx):
+    async def pfp(self, ctx):
         """Lets pick you a brand new pfp, shall we?"""
         e = await self.__create_embed(discord.Embed.Empty, nekos.img("avatar"))
         await ctx.send(embed = e)

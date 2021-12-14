@@ -1,7 +1,9 @@
-import asyncio
+import random
+import time
+
 import discord
 from discord.ext import commands
-import pymongo
+
 
 class Moderation(commands.Cog):
     def __init__(self, bot):
@@ -20,7 +22,7 @@ class Moderation(commands.Cog):
     async def hackban(self, ctx, user: discord.User, *, reason=None):
         """Bans a user that isn't in the server""" 
         await ctx.guild.ban(discord.Object(id=user.id), reason=reason, delete_message_days=7)
-        e = self.__create_thumbnail_embed(title=":hammer: | Operator Banned",
+        e = self.__create_thumbnail_embed(title=":hammer: | User Banned",
                                     description=f"Banned: {user}\nBy: Dr. {ctx.author.mention}\nReason: {reason}",
                                     color=discord.Color.red(),
                                     thumbnail=user.avatar_url_as(format="png"))
@@ -38,7 +40,7 @@ class Moderation(commands.Cog):
         await user.send(embed=e)
 
         await user.ban(reason=reason, delete_message_days=7)
-        e = self.__create_thumbnail_embed(title=":hammer: | Operator Banned",
+        e = self.__create_thumbnail_embed(title=":hammer: | User Banned",
                                     description=f"Banned: {user.mention}\nBy: Dr. {ctx.author.mention}\nReason: {reason}",
                                     color=discord.Color.red(),
                                     thumbnail=user.avatar_url_as(format="png"))
@@ -56,11 +58,25 @@ class Moderation(commands.Cog):
         await user.send(embed=e)
 
         await user.kick(reason=reason)
-        e = self.__create_thumbnail_embed(title=":boot: | Operator Kicked",
+        e = self.__create_thumbnail_embed(title=":boot: | User Kicked",
                                     description=f"Kicked: {user.mention}\nBy: Dr. {ctx.author.mention}\nReason: {reason}",
                                     color=discord.Color.orange(),
                                     thumbnail=user.avatar_url_as(format="png"))
         await ctx.send(embed=e)
+        
+        
+    @commands.command()
+    @commands.guild_only()
+    @commands.has_permissions(ban_members=True)
+    async def bab(self, ctx, user: discord.Member):
+        """Bab user (has 1% chance of banning)"""
+        bab_question_mark = random.randint(1, 100)
+        msg = f"**{ctx.author.name}** babbed **{user.name}**!"
+        if bab_question_mark == 1:
+            msg = f"**{ctx.author.name}** babbed **{user.name}** way too hard!"
+            await ctx.invoke(self.bot.get_command("ban"), user=user, reason="Babbed into oblivion")
+            
+        await ctx.send(msg)
 
 
     @commands.command()
@@ -97,7 +113,7 @@ class Moderation(commands.Cog):
     @commands.command(aliases=["ra", "ar"])
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
-    async def roleadd(self, ctx, user:discord.Member, *, role: discord.Role):
+    async def addrole(self, ctx, user:discord.Member, *, role: discord.Role):
         """Adds a role to a user. You can pass either role ID or it's name"""
         if role:
             if role in user.roles:
@@ -151,7 +167,7 @@ class Moderation(commands.Cog):
                 return await ctx.send(embed=e)
             
             await user.add_roles(role)
-            e = discord.Embed(title=":mute: | Operator muted", 
+            e = discord.Embed(title=":mute: | User muted", 
                             description=f"Muted: {user.mention}\nBy: Dr. {ctx.author.mention}\nReason: {reason}", 
                             color=discord.Color.orange())
             return await ctx.send(embed=e)
@@ -181,7 +197,7 @@ class Moderation(commands.Cog):
                 return await ctx.send(embed=e)
 
             await user.remove_roles(role)
-            e = discord.Embed(title=":mute: | Operator unmuted", 
+            e = discord.Embed(title=":mute: | User unmuted", 
                             description=f"Unmuted: {user.mention}\nBy: Dr. {ctx.author.mention}", 
                             color=discord.Color.green())
             return await ctx.send(embed=e)

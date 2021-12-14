@@ -1,11 +1,19 @@
 import asyncio
 import datetime
 import operator
+import os
 import random
 
 import discord
 from discord.ext import commands
 from discord.ext.commands import BucketType
+from dotenv import load_dotenv
+
+from cogs.utils.helpers import get_json
+
+load_dotenv()
+API_KEY = os.environ.get("API_KEY")
+
 
 class Social(commands.Cog):
     def __init__(self, bot):
@@ -47,26 +55,9 @@ class Social(commands.Cog):
         if user.bot:
             return
 
-        guild = self.db[str(ctx.guild.id)]
-
-        user_guild = guild.find_one({"_id": user.id})
-        user_global = self.global_.find_one({"_id": user.id})
-
-        lvl = user_guild["level"]
-        exp = user_guild["exp"]
-        next_level = user_guild["nextLevelExp"]
-        reps = user_global["rep"]
-        place = await self.__calculate_place(user, ctx.guild)
-        desc = user_global["desc"]
-
-        e = discord.Embed(title=f"{user.display_name} Profile", description= f":up: | Level: **{lvl} ({exp}/{next_level})**\n" \
-                                                                f":chart_with_upwards_trend: | Reputation: **{reps}**\n" \
-                                                                f":medal: | Server Place: **{place}**", 
-                        color=self.bot.color)
-        e.add_field(name="Description", value=f"```{'Beep Boop, description!' if desc == None else desc}```")
-        e.set_thumbnail(url=user.avatar_url_as(static_format='png'))
-        await ctx.send(embed = e)
-
+        avatar = user.avatar_url_as(format="png", size=256)
+        resp = await get_json(f"https://middle-gelbooru.herokuapp.com/api/draw?type=profile&gid={ctx.guild.id}&uid={user.id}&asset={avatar}&name={user.name}&k={API_KEY}")
+        await ctx.send(resp["image"])
 
     @commands.command()
     @commands.guild_only()
@@ -129,8 +120,8 @@ class Social(commands.Cog):
             e = discord.Embed(title = ":page_facing_up: | Your description has been reset successfuly!", color = self.bot.color)
             return await ctx.send(embed=e)
 
-        if len(text) > 125:
-            e = discord.Embed(title = ":page_facing_up: | Your description is longer than 125 characters", color = discord.Color.red())
+        if len(text) > 255:
+            e = discord.Embed(title = ":page_facing_up: | Your description is longer than 255 characters", color = discord.Color.red())
             return await ctx.send(embed=e)
 
         self.global_.update_one(
@@ -155,10 +146,9 @@ class Social(commands.Cog):
             return
 
         pocket = self.global_.find_one({"_id": user.id})["pocket"]
-        bank = self.global_.find_one({"_id": user.id})["bank"]
 
         e = discord.Embed(title=f":atm: | {user.name} balance",
-                    description=f":dollar: | Pocket: **`{pocket}`LMD**\n:bank: | Bank: **`{bank}`LMD**", color=self.bot.color)
+                    description=f":dollar: | **`{pocket}`LMD**", color=self.bot.color)
         await ctx.send(embed=e)
 
     
@@ -216,43 +206,6 @@ class Social(commands.Cog):
             e = discord.Embed(title=":diamond_shape_with_a_dot_inside: | Daily", description=text, color=self.bot.color)
             return await ctx.send(embed=e)
 
-    
-    @commands.command()
-    @commands.guild_only()
-    @commands.cooldown(1, 7, type=BucketType.user)
-    async def deposit(self, ctx, amount: int = None):
-        """Sends your LMD to the local bank. Leave `amount` empty to deposit all your LMD at once"""
-        if amount == None:
-            amount = self.global_.find_one({"_id": ctx.author.id})["pocket"]
-
-        self.global_.update_one(
-            {"_id": ctx.author.id},
-            {"$inc": {
-                "pocket": -amount,
-                "bank": amount
-            }}
-        )
-        
-        e = discord.Embed(title=":bank: | Deposit", description=f"**{amount}LMD** have been transfered to the bank", color=self.bot.color)
-        await ctx.send(embed=e)
-
-
-    @commands.command()
-    @commands.guild_only()
-    @commands.cooldown(1, 7, type=BucketType.user)
-    async def withdraw(self, ctx, amount: int):
-        """Gives you `<amount>` of LMD from the bank"""
-        self.global_.update_one(
-            {"_id": ctx.author.id},
-            {"$inc": {
-                "pocket": amount,
-                "bank": -amount
-            }}
-        )
-        
-        e = discord.Embed(title=":bank: | Withdraw", description=f"**{amount}LMD** have been transfered to you from the bank", color=self.bot.color)
-        await ctx.send(embed=e)
-
 
     @commands.command()
     @commands.guild_only()
@@ -267,7 +220,8 @@ class Social(commands.Cog):
         bal = self.global_.find_one({"_id": ctx.author.id})["pocket"]
         if bal < amount:
             e = discord.Embed(title=":atm: | Not enough LMD...", color=discord.Color.red())
-            return await ctx.send(embed=e)
+            await ctx.send(embed=e)
+            return await ctx.invoke(self.bot.get_command("bank"), user = ctx.author)
 
         code = random.randrange(1000, 9999)
         em = discord.Embed(title=":atm: | Waiting for confirmation...", color=discord.Color.orange())
@@ -276,7 +230,7 @@ class Social(commands.Cog):
         await ctx.author.send(embed=e)
 
         try:
-            await self.bot.wait_for("message", check=lambda m: m.author == ctx.author and m.content == str(code), timeout=300)
+            await self.bot.wait_for("message", check=lambda m: m.author == ctx.author and m.guild is None and m.content == str(code), timeout=300)
         except asyncio.TimeoutError:
             e = discord.Embed(title=":atm: | Transfer", description=f"Timed out...", color=discord.Color.red())
             await ctx.send(embed=e)
@@ -312,7 +266,7 @@ class Social(commands.Cog):
         self.farming.append(ctx.author.id)
 
         await asyncio.sleep(300)
-        lmd = random.randint(10, 150)
+        lmd = random.randint(10, 300)
         self.global_.update_one(
             {"_id": ctx.author.id},
             {"$inc": {

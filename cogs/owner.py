@@ -121,13 +121,15 @@ class Owner(commands.Cog):
         try:
             result = (await eval(f"{fn_name}()", env))
         except Exception as e:
-            await ctx.send(f"`Error:` ```python\n{e}```")
+            await ctx.message.add_reaction("\u274C")
+            return await ctx.send(f"`Error:` ```python\n{e}```")
         
         try:
+            await ctx.message.add_reaction("\u2705")
             await ctx.send(result)
         except:
             pass
-        
+
     
 def setup(bot):
     bot.add_cog(Owner(bot))

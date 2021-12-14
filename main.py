@@ -27,7 +27,7 @@ bot = commands.Bot(command_prefix=get_prefix,
 load_dotenv()
 MONGODB_URI = os.environ.get("MONGODB_URI")
 client = pymongo.MongoClient(MONGODB_URI)
-debug_mode = False
+debug_mode = True
 
 bot.db = client["Mint"]
 bot.color = 0x98ff98
@@ -55,7 +55,7 @@ async def on_ready():
 
         guild_settings = {
             "_id"           :   guild.id,
-            "prefix"        :   "=",
+            "prefix"        :   "m!",
             "logChannel"    :   None,
             "muteRoleID"    :   None,
             "welcomeChannel":   None,
@@ -82,7 +82,10 @@ async def on_ready():
                 "pocket"     :    0,
                 "bank"       :    0,
                 "dailyTime"  :    datetime(2000, 1, 1, 1, 1, 1, 1),
-                "dailyStreak":    0
+                "dailyStreak":    0,
+                "lvlupbg"    :    None,
+                "profilebg"  :    None,
+                "dispTitle"  :    None
             }
             guild_member = {
                 "_id"         :   member.id,
@@ -111,7 +114,7 @@ async def on_ready():
     print(f"Mode: {'DEV' if debug_mode else 'Stable'}")
     print("-----------------------------")
 
-    await bot.change_presence(activity=Game(name="Searching for the library (=help)"))
+    await bot.change_presence(activity=Game(name="Searching for the library (m!help)"))
 
 
 if __name__ == "__main__":
@@ -120,7 +123,7 @@ if __name__ == "__main__":
         bot.load_extension("cogs.errorhandler")
         bot.load_extension("cogs.eventhandler")
     else:
-        for cog in os.listdir("cogs"):
+        for cog in os.listdir("Mint/cogs"):
             try:
                 if cog.endswith(".py"):
                     bot.load_extension("cogs." + cog.replace(".py", ""))

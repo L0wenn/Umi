@@ -1,5 +1,6 @@
 import discord
 import itertools
+from discord import message
 from discord.ext import commands
 
 class BotHelp(commands.MinimalHelpCommand):
@@ -22,13 +23,14 @@ class BotHelp(commands.MinimalHelpCommand):
         fmt = '{0}{1} : {2}\n' if command.short_doc else '{0}{1}\n'
         return fmt.format(self.clean_prefix, command.qualified_name, command.short_doc) 
 
-    async def send_embed(self, embed):
+    async def send_embed(self, embed, msg):
         destination = self.get_destination()
-        await destination.send(embed=embed)
+        await destination.send(embed=embed, reference=msg)
         
     async def send_bot_help(self, mapping):
         ctx = self.context
         bot = ctx.bot
+        message = ctx.message.to_reference()
 
         e = discord.Embed(title=":abcd: | Help", description=self.get_opening_note(), color=0x98ff98)
         e.set_thumbnail(url=bot.user.avatar_url_as(format="png"))
@@ -45,9 +47,10 @@ class BotHelp(commands.MinimalHelpCommand):
             commands = sorted(commands, key=lambda c: c.name) if self.sort_commands else list(commands)
             self.add_bot_commands_formatting(commands, category, e)
 
-        await self.send_embed(e)
+        await self.send_embed(e, message)
 
     async def send_cog_help(self, cog):
+        message = self.context.message.to_reference()
         cog_help = str()
         filtered = await self.filter_commands(cog.get_commands(), sort=self.sort_commands)
         if filtered:
@@ -55,7 +58,7 @@ class BotHelp(commands.MinimalHelpCommand):
                 cog_help += self.add_subcommand_formatting(command)
 
         destination = self.get_destination()
-        await destination.send(f"```apache\n[{cog.qualified_name} Commands]\n\n{cog_help}```")
+        await destination.send(f"```apache\n[{cog.qualified_name} Commands]\n\n{cog_help}```", reference=message)
 
     async def send_command_help(self, command):
         signature = self.get_command_signature(command)

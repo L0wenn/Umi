@@ -21,8 +21,9 @@ Mint is a Discord bot made out of pure curiosity about programming around 2-3 ye
 - [x] Get a better hosting
 - [x] Add more features to social.py
 - [x] Make event handling process better
-- [ ] Make leveling related graphics (In Progress)
-- [ ] Create a dashboard website for changing bot's settings easily
+- [x] Make leveling related graphics
+- [ ] Create a dashboard website for changing bot's settings easily (In Progress)
+- [ ] Create a separate API for the bot (In Progress)
 - [ ] Refactor the code (ugh)
 
 

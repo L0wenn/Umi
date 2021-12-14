@@ -210,6 +210,22 @@ class Settings(commands.Cog):
         await ctx.send(embed = discord.Embed(description = f"Max amount of warns has been changed to `{limit}`", color = self.bot.color))
 
 
+    @commands.command(aliases=["cbg"])
+    @commands.guild_only()
+    async def changebackground(self, ctx):
+        await ctx.send("WIP")
+        
+        
+    @commands.command(aliases=["ctit"])
+    @commands.guild_only()
+    async def changetitle(self, ctx):
+        await ctx.send("WIP")
+        
+        
+    @commands.command(aliases=["cach"])
+    @commands.guild_only()
+    async def changeachievements(self, ctx):
+        await ctx.send("WIP")
 
 
 def setup(bot):

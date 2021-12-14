@@ -6,14 +6,11 @@ from cogs.utils.helpers import get_json
 from random import choice
 
 
-GELBOORU_URL = "https://middle-gelbooru.herokuapp.com/gelbooru?q={}"
+GELBOORU_URL = "https://middle-gelbooru.herokuapp.com/api/gelbooru?q={}"
 
 async def get_posts(tags):
     url = GELBOORU_URL.format(tags)
     search = await get_json(url)
-
-    # post = choice(search)
-    # image = post["file_url"]
 
     return search
 
@@ -41,7 +38,6 @@ class NSFW(commands.Cog):
             await ctx.send(image)
             await asyncio.sleep(5) # sleeping to avoid ratelimit
             
-
 
     @commands.command()
     @commands.is_nsfw()

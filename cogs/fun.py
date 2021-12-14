@@ -1,11 +1,12 @@
 import random
+import re
 
 import discord
 import nekos
 from discord.ext import commands
 from discord.ext.commands import BucketType
 
-from cogs.utils import helpers
+from cogs.utils.helpers import get_image, get_json
 
 
 class Fun(commands.Cog):
@@ -13,36 +14,6 @@ class Fun(commands.Cog):
         self.bot = bot
 
 #start of nekobot functions: https://github.com/hibikidesu/NekoBot
-    async def __get_image(self, ctx, user=None):
-        if user:
-            if user.is_avatar_animated():
-                return str(user.avatar_url_as(format="gif"))
-            else:
-                return str(user.avatar_url_as(format="png"))
-
-        await ctx.trigger_typing()
-        message = ctx.message
-
-        if len(message.attachments) > 0:
-            return message.attachments[0].url
-
-        def check(m):
-            return m.channel == message.channel and m.author == message.author
-
-        try:
-            e = discord.Embed(title=":frame_photo: | Send me an image!", color=self.bot.color)
-            await ctx.send(embed=e)
-            x = await self.bot.wait_for("message", check=check, timeout=15)
-        except:
-            e = discord.Embed(title=":clock1: | Timed out...", color=self.bot.color)
-            return await ctx.send(embed=e)
-
-        if not len(x.attachments) >= 1:
-            e = discord.Embed(title=":x: | No images found...", color=discord.Color.red())
-            return await ctx.send(embed=e)
-
-        return x.attachments[0].url
-
     # TODO: Discord doesn't want to attach a pic to embeds for some reason?
     def __nekobot_embed(self, data, key="message"):
         e = discord.Embed(color=self.bot.color)
@@ -56,13 +27,13 @@ class Fun(commands.Cog):
     @commands.cooldown(1, 5, type=BucketType.user)
     async def blurpify(self, ctx, user:discord.Member=None):
         """Blurpify something!"""
-        img = await self.__get_image(ctx, user)
+        img = await get_image(self.bot, ctx, user)
         if not isinstance(img, str):
             return img
 
         await ctx.trigger_typing()
-        res = await helpers.get_json(f"https://nekobot.xyz/api/imagegen?type=blurpify&image={img}")
-        await ctx.send(self.__nekobot_embed(res))
+        res = await get_json(f"https://nekobot.xyz/api/imagegen?type=blurpify&image={img}")
+        await ctx.send(embed=self.__nekobot_embed(res))
 
 
     @commands.command(aliases=["phc", "ph"])
@@ -71,7 +42,7 @@ class Fun(commands.Cog):
     async def phcomment(self, ctx, *, comment: str):
         """PronHub comment image :lenny:"""
         await ctx.trigger_typing()
-        res = await helpers.get_json("https://nekobot.xyz/api/imagegen?type=phcomment"
+        res = await get_json("https://nekobot.xyz/api/imagegen?type=phcomment"
                                     f"&image={ctx.author.avatar_url_as(format='png')}"
                                     f"&text={comment}&username={ctx.author.name}")
         if not res["success"]:
@@ -86,7 +57,7 @@ class Fun(commands.Cog):
     async def tweet(self, ctx, username: str, *, text: str):
         """Make a tweet as someone!"""
         await ctx.trigger_typing()
-        res = await helpers.get_json("https://nekobot.xyz/api/imagegen?type=tweet"
+        res = await get_json("https://nekobot.xyz/api/imagegen?type=tweet"
                                     f"&username={username}&text={text}")
         await ctx.send(embed=self.__nekobot_embed(res))
 
@@ -95,12 +66,12 @@ class Fun(commands.Cog):
     @commands.guild_only()
     @commands.cooldown(1, 5, type=BucketType.user)
     async def threats(self, ctx, user:discord.Member):
-        img = await self.__get_image(ctx, user)
+        img = await get_image(self.bot, ctx, user)
         if not isinstance(img, str):
             return img
 
         await ctx.trigger_typing()
-        res = await helpers.get_json(f"https://nekobot.xyz/api/imagegen?type=threats&url={img}")
+        res = await get_json(f"https://nekobot.xyz/api/imagegen?type=threats&url={img}")
         await ctx.send(embed=self.__nekobot_embed(res))
 
 
@@ -109,12 +80,12 @@ class Fun(commands.Cog):
     @commands.cooldown(1, 5, type=BucketType.user)
     async def bodypillow(self, ctx, user:discord.Member):
         """Bodypillow someone uwu"""
-        img = await self.__get_image(ctx, user)
+        img = await get_image(self.bot, ctx, user)
         if not isinstance(img, str):
             return img
 
         await ctx.trigger_typing()
-        res = await helpers.get_json(f"https://nekobot.xyz/api/imagegen?type=bodypillow&url={img}")
+        res = await get_json(f"https://nekobot.xyz/api/imagegen?type=bodypillow&url={img}")
         await ctx.send(embed=self.__nekobot_embed(res))
 
     
@@ -125,7 +96,7 @@ class Fun(commands.Cog):
         """:^)"""
         await ctx.trigger_typing()
         img = user.avatar_url_as(format="png")
-        res = await helpers.get_json(f"https://nekobot.xyz/api/imagegen?type=baguette&url={img}")
+        res = await get_json(f"https://nekobot.xyz/api/imagegen?type=baguette&url={img}")
         await ctx.send(embed=self.__nekobot_embed(res))
 
     
@@ -134,12 +105,12 @@ class Fun(commands.Cog):
     @commands.cooldown(1, 5, type=BucketType.user)
     async def deepfry(self, ctx, user:discord.Member=None):
         """Deepfry a user"""
-        img = await self.__get_image(ctx, user)
+        img = await get_image(self.bot, ctx, user)
         if not isinstance(img, str):
             return img
 
         await ctx.trigger_typing()
-        res = await helpers.get_json(f"https://nekobot.xyz/api/imagegen?type=deepfry&image={img}")
+        res = await get_json(f"https://nekobot.xyz/api/imagegen?type=deepfry&image={img}")
         await ctx.send(embed=self.__nekobot_embed(res))
     
     
@@ -148,7 +119,7 @@ class Fun(commands.Cog):
     @commands.cooldown(1, 5, type=BucketType.user)   
     async def clyde(self, ctx, *, text: str):
         await ctx.trigger_typing()
-        res = await helpers.get_json(f"https://nekobot.xyz/api/imagegen?type=clyde&text={text}")
+        res = await get_json(f"https://nekobot.xyz/api/imagegen?type=clyde&text={text}")
         await ctx.send(embed=self.__nekobot_embed(res))
 
     #jeez, kill me pls
@@ -191,13 +162,12 @@ class Fun(commands.Cog):
         if score > 75 and score <= 100:
             color = discord.Color.green()
 
-        res = await helpers.get_json(f"https://nekobot.xyz/api/imagegen?type=ship&user1={user1_url}&user2={user2_url}")
+        res = await get_json(f"https://nekobot.xyz/api/imagegen?type=ship&user1={user1_url}&user2={user2_url}")
         e = discord.Embed(title=f"{user1.name} :heart: {user2.name}", 
                         description="**Love %**\n" \
-                                    f"`{counter_}` **{score}%**\n\n{'Selfcest is the bestest!' if user1 == user2 else final_name}",
+                                    f"`{counter_}` **{score}%**\n\n{'Selfcest is the bestcest!' if user1 == user2 else final_name}",
                         color=color)
         e.set_image(url=res["message"])
-        
         await ctx.send(embed=e)
 
 
@@ -207,7 +177,7 @@ class Fun(commands.Cog):
     async def lolice(self, ctx):
         """*KNOCK KNOCK KNOCK* FBI OPEN UP!"""
         await ctx.trigger_typing()
-        res = await helpers.get_json(f"https://nekobot.xyz/api/imagegen?type=lolice&url={ctx.author.avatar_url_as(format='png')}")
+        res = await get_json(f"https://nekobot.xyz/api/imagegen?type=lolice&url={ctx.author.avatar_url_as(format='png')}")
         await ctx.send(embed=self.__nekobot_embed(res))
 
     
@@ -218,7 +188,7 @@ class Fun(commands.Cog):
         """trash smh"""
         await ctx.trigger_typing()
         url = user.avatar_url_as(format="jpg")
-        res = await helpers.get_json(f"https://nekobot.xyz/api/imagegen?type=trash&url={url}")
+        res = await get_json(f"https://nekobot.xyz/api/imagegen?type=trash&url={url}")
         await ctx.send(embed=self.__nekobot_embed(res))
 
     
@@ -227,12 +197,12 @@ class Fun(commands.Cog):
     @commands.cooldown(1, 5, type=BucketType.user)
     async def awooify(self, ctx, user: discord.Member = None):
         """*Awoo noises intensifies*"""
-        img = await self.__get_image(ctx, user)
+        img = await get_image(self.bot, ctx, user)
         if not isinstance(img, str):
             return img
 
         await ctx.trigger_typing()
-        res = await helpers.get_json(f"https://nekobot.xyz/api/imagegen?type=awooify&url={img}")
+        res = await get_json(f"https://nekobot.xyz/api/imagegen?type=awooify&url={img}")
         await ctx.send(embed=self.__nekobot_embed(res))
 
     
@@ -242,7 +212,7 @@ class Fun(commands.Cog):
     async def changemymind(self, ctx, *, text: str):
         """Do it. You won't"""
         await ctx.trigger_typing()
-        res = await helpers.get_json(f"https://nekobot.xyz/api/imagegen?type=changemymind&text={text}")
+        res = await get_json(f"https://nekobot.xyz/api/imagegen?type=changemymind&text={text}")
         await ctx.send(embed=self.__nekobot_embed(res))
 
 
@@ -251,14 +221,50 @@ class Fun(commands.Cog):
     @commands.cooldown(1, 5, type=BucketType.user)
     async def magik(self, ctx, user: discord.Member = None):
         """Magikify a user/picture"""
-        img = await self.__get_image(ctx, user)
+        img = await get_image(self.bot, ctx, user)
         if not isinstance(img, str):
             return img
 
         await ctx.trigger_typing()
-        res = await helpers.get_json(f"https://nekobot.xyz/api/imagegen?type=magik&image={img}")
+        res = await get_json(f"https://nekobot.xyz/api/imagegen?type=magik&image={img}")
         await ctx.send(embed=self.__nekobot_embed(res))
 #end of nekobot functions: https://github.com/hibikidesu/NekoBot
+
+
+    @commands.command()
+    @commands.guild_only()
+    @commands.cooldown(1, 10, type=BucketType.user)
+    async def roll(self, ctx, dice: str):
+        """Roll the dice in NdN format
+        
+        Example: **1d20** (1 dice with 20 faces)
+        """
+        faces = []
+        r = re.compile(".*d.*")
+        if not r.match(dice):
+            e = discord.Embed(title=":x: | Dice should be in NdN format", color=discord.Color.red())
+            return await ctx.send(embed=e)
+        
+        dices = list(map(int, dice.split("d")))
+        total = dices[0] * dices[1]
+        for i in range(dices[0]):
+            faces.append(random.randrange(1, dices[1]))
+            
+        got = sum(faces)
+        pers = got / total
+        if pers <= 0.25:
+            color = discord.Color.dark_red()
+        elif pers > 0.25 and pers <= 0.50:
+            color = discord.Color.red()
+        elif pers > 0.50 and pers <= 0.75:
+            color = discord.Color.orange()
+        else:
+            color = discord.Color.green()
+            
+        e = discord.Embed(title=f":game_die: | {ctx.author.name} rolled the dice!", color=color)
+        e.add_field(name="Results", value=f"**Dice landed on:** {' '.join(list(map(str, faces)))}\n**Total:** {got}")
+        await ctx.send(embed=e)
+    
 
     @commands.command()
     @commands.guild_only()
@@ -266,7 +272,7 @@ class Fun(commands.Cog):
     async def meme(self, ctx):
         """Sends you a random meme from Reddit"""
         await ctx.trigger_typing()
-        res = await helpers.get_json("https://www.reddit.com/r/memes.json")
+        res = await get_json("https://www.reddit.com/r/memes.json")
 
         post = random.choice(res["data"]["children"])
         meme = post["data"]
@@ -284,9 +290,11 @@ class Fun(commands.Cog):
     async def flipcoin(self, ctx):
         """Flips a coin for you!"""
         coin = random.randint(0, 1)
+        img = discord.File("images/tails.png" if coin == 0 else "images/heads.png")
+        filename = "attachment://tails.png" if coin == 0 else "attachment://heads.png"
         e = discord.Embed(title="TAILS!!" if coin == 0 else "HEADS!!", color=self.bot.color)
-        e.set_image(url="https://bit.ly/301382B" if coin == 0 else "https://bit.ly/31BR1ct") # TODO: Change the images into something "general(?)"
-        await ctx.send(embed=e)
+        e.set_image(url=filename)
+        await ctx.send(embed=e, file=img)
 
 
     @commands.command(name="8ball")
