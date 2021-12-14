@@ -61,6 +61,7 @@ class BotHelp(commands.MinimalHelpCommand):
         await destination.send(f"```apache\n[{cog.qualified_name} Commands]\n\n{cog_help}```", reference=message)
 
     async def send_command_help(self, command):
+        message = self.context.message.to_reference()
         signature = self.get_command_signature(command)
         fmt_aliases = "`" + "`\u2002`".join(command.aliases) + "`"
 
@@ -68,4 +69,4 @@ class BotHelp(commands.MinimalHelpCommand):
         f"Aliases: {fmt_aliases}", color=0x98ff98)
         e.set_footer(text="<> - Nessesary, [] - Optional")
 
-        await self.send_embed(e)
+        await self.send_embed(e, message)
