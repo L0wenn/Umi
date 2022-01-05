@@ -60,6 +60,7 @@ class Social(commands.Cog):
         img = await download_image(resp["image"], "images")
         file = discord.File(f"images/{img}.png")
         await ctx.send(file=file)
+        os.remove(f"images/{img}.png")
 
     @commands.command()
     @commands.guild_only()

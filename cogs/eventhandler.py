@@ -107,6 +107,7 @@ class EventHandler(commands.Cog):
                 img = await download_image(resp["image"], "images")
                 file = discord.File(f"images/{img}.png")
                 await message.channel.send(file=file)
+                os.remove(f"images/{img}.png")
 
     @Cog.listener()
     async def on_message_delete(self, message):
