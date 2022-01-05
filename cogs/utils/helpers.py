@@ -48,7 +48,7 @@ async def get_image(bot, ctx, user=None):
         return x.attachments[0].url
     
 async def download_image(url, path):
-    img_name = str(int(datetime.datetime.now().timestamp()))
+    img_name = f"{int(datetime.datetime.now().timestamp())}.png"
     path = os.path.join(path, img_name)
     async with aiohttp.ClientSession() as client:
         async with client.get(url) as response:
