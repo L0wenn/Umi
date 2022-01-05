@@ -46,10 +46,10 @@ class Settings(commands.Cog):
             self.settings.update_one(
                 {"_id": ctx.guild.id},
                 {"$set": {
-                    "prefix": "="
+                    "prefix": "m!"
                 }}
             )
-            return await ctx.send(embed = discord.Embed(description = "Server prefix was reset to `=`", color = self.bot.color))
+            return await ctx.send(embed = discord.Embed(description = "Server prefix was reset to `m!`", color = self.bot.color))
         
         self.settings.update_one(
             {"_id": ctx.guild.id},

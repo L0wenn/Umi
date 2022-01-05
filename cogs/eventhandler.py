@@ -104,8 +104,8 @@ class EventHandler(commands.Cog):
             if lvlup:
                 avatar = message.author.avatar_url_as(format='png', size=256)
                 resp = await get_json(f"https://middle-gelbooru.herokuapp.com/api/draw?type=level&uid={user.id}&gid={guild.id}&asset={avatar}&k={API_KEY}")
-                img = await download_image(resp["image"], "Mint/images")
-                file = discord.File(f"Mint/images/{img}.png")
+                img = await download_image(resp["image"], "images")
+                file = discord.File(f"images/{img}.png")
                 await message.channel.send(file=file)
 
     @Cog.listener()

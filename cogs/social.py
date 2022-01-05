@@ -57,8 +57,8 @@ class Social(commands.Cog):
 
         avatar = user.avatar_url_as(format="png", size=256)
         resp = await get_json(f"https://middle-gelbooru.herokuapp.com/api/draw?type=profile&gid={ctx.guild.id}&uid={user.id}&asset={avatar}&name={user.name}&k={API_KEY}")
-        img = await download_image(resp["image"], "Mint/images")
-        file = discord.File(f"Mint/images/{img}.png")
+        img = await download_image(resp["image"], "images")
+        file = discord.File(f"images/{img}.png")
         await ctx.send(file=file)
 
     @commands.command()
