@@ -10,7 +10,7 @@ from discord.ext import commands
 from discord.ext.commands import Cog
 from dotenv import load_dotenv
 
-from cogs.utils.helpers import get_json
+from cogs.utils.helpers import get_json, download_image
 
 load_dotenv()
 API_KEY = os.environ.get("API_KEY")
@@ -104,7 +104,9 @@ class EventHandler(commands.Cog):
             if lvlup:
                 avatar = message.author.avatar_url_as(format='png', size=256)
                 resp = await get_json(f"https://middle-gelbooru.herokuapp.com/api/draw?type=level&uid={user.id}&gid={guild.id}&asset={avatar}&k={API_KEY}")
-                await message.channel.send(resp["image"])
+                img = await download_image(resp["image"], "Mint/images")
+                file = discord.File(f"Mint/images/{img}.png")
+                await message.channel.send(file=file)
 
     @Cog.listener()
     async def on_message_delete(self, message):
@@ -227,7 +229,7 @@ class EventHandler(commands.Cog):
             "muteRoleID"    :   None,
             "welcomeChannel":   None,
             "welcomeMessage":   "Welcome to ?g, Dr. ?n",
-            "warnAction"    :   False,
+            "warnAction"    :   "kick",
             "warnLimit"     :   3
         }
         self.db.settings.insert_one(guild_settings)

@@ -1,17 +1,21 @@
 import aiohttp
 import discord
+import datetime
+import os
+import aiofiles
 
 
 async def get_json(url):
-    header = {"User-agent": "Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:94.0) Gecko/20100101 Firefox/94.0"}
     try:
-        async with aiohttp.ClientSession(headers=header) as client:
-            async with client.get(url) as responce:
-                res = await responce.json()
+        async with aiohttp.ClientSession() as client:
+            async with client.get(url) as response:
+                if response.status == 200:
+                    res = await response.json()
+                    return res
+                else:
+                    print(f"Unable to get JSON from {url}")
     except TypeError:
         return
-
-    return res
 
 async def get_image(bot, ctx, user=None):
         if user:
@@ -42,3 +46,17 @@ async def get_image(bot, ctx, user=None):
             return await ctx.send(embed=e)
 
         return x.attachments[0].url
+    
+async def download_image(url, path):
+    img_name = int(datetime.datetime.now().timestamp())
+    path = os.path.join(path, img_name)
+    async with aiohttp.ClientSession() as client:
+        async with client.get(url) as response:
+            if response.status == 200:
+                content = await response.read()
+                async with aiofiles.open(path, "wb") as f:
+                    await f.write(content)
+                    return str(img_name)
+            else:
+                print(f"Unable to download image from {url}")
+                

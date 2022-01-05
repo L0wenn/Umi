@@ -22,7 +22,8 @@ async def get_prefix(bot, message):
     return commands.when_mentioned_or(bot.db.settings.find_one({"_id": message.guild.id})["prefix"])(bot, message)
     
 bot = commands.Bot(command_prefix=get_prefix,
-                    case_insensitive = True, intents = discord.Intents.all())
+                    case_insensitive = True, intents = discord.Intents.all(),
+                    activity=Game(name="Searching for the library (m!help)"))
 
 load_dotenv()
 MONGODB_URI = os.environ.get("MONGODB_URI")
@@ -113,8 +114,6 @@ async def on_ready():
     print(f"discord.py ver: {dv}")
     print(f"Mode: {'DEV' if debug_mode else 'Stable'}")
     print("-----------------------------")
-
-    await bot.change_presence(activity=Game(name="Searching for the library (m!help)"))
 
 
 if __name__ == "__main__":

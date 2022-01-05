@@ -9,7 +9,7 @@ from discord.ext import commands
 from discord.ext.commands import BucketType
 from dotenv import load_dotenv
 
-from cogs.utils.helpers import get_json
+from cogs.utils.helpers import get_json, download_image
 
 load_dotenv()
 API_KEY = os.environ.get("API_KEY")
@@ -57,7 +57,9 @@ class Social(commands.Cog):
 
         avatar = user.avatar_url_as(format="png", size=256)
         resp = await get_json(f"https://middle-gelbooru.herokuapp.com/api/draw?type=profile&gid={ctx.guild.id}&uid={user.id}&asset={avatar}&name={user.name}&k={API_KEY}")
-        await ctx.send(resp["image"])
+        img = await download_image(resp["image"], "Mint/images")
+        file = discord.File(f"Mint/images/{img}.png")
+        await ctx.send(file=file)
 
     @commands.command()
     @commands.guild_only()
