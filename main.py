@@ -28,7 +28,7 @@ bot = commands.Bot(command_prefix=get_prefix,
 load_dotenv()
 MONGODB_URI = os.environ.get("MONGODB_URI")
 client = pymongo.MongoClient(MONGODB_URI)
-debug_mode = True
+debug_mode = False
 
 bot.db = client["Mint"]
 bot.color = 0x98ff98
@@ -122,7 +122,7 @@ if __name__ == "__main__":
         bot.load_extension("cogs.errorhandler")
         bot.load_extension("cogs.eventhandler")
     else:
-        for cog in os.listdir("Mint/cogs"):
+        for cog in os.listdir("cogs"):
             try:
                 if cog.endswith(".py"):
                     bot.load_extension("cogs." + cog.replace(".py", ""))

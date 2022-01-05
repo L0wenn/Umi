@@ -2,3 +2,6 @@ test.py
 cogs/__pycache__/
 cogs/utils/__pycache__/
 .env
+discord.log
+nohup.out
+.gitignore
