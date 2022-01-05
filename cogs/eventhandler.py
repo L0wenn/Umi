@@ -140,7 +140,7 @@ class EventHandler(commands.Cog):
         log_channel = self.bot.get_channel(self.db.settings.find_one({"_id": guild.id})["logChannel"])
 
         if log_channel:
-            e = discord.Embed(title = ":wastebasket: | Message edited", description=f"[**Jump to message**]({after.jump_url()})", color = self.bot.color)
+            e = discord.Embed(title = ":wastebasket: | Message edited", description=f"[**Jump to message**]({after.jump_url})", color = self.bot.color)
             e.add_field(name = "Sent by:", value = before.author.mention, inline=False)
             e.add_field(name = "In:", value = before.channel.mention, inline=False)
             e.add_field(name = "Before:", value = before.content, inline=False)
