@@ -1,3 +1,5 @@
+# THE PROJECT IS ABANDONED. IF YOU'RE GONNA USE THIS CODE, TAKE A NOTE THAT THE IT MIGHT NOT WORK DEPENDING ON DISCORD API CHANGES
+
 # Mint
 Mint is a Discord bot made out of pure curiosity about programming around 2-3 years ago. As a revived project, Mint is now ready to serve in providing moderation, fun and social features!
 
